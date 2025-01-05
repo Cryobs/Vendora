@@ -4,17 +4,17 @@ package com.vendora.warehouse_service.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="Products")
+@Table(name = "products")
 public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String description;
-    private int number;
+    private int price;
 
-    public int getNumber() {
-        return number;
+    public int getPrice() {
+        return price;
     }
 
     public Long getId() {
@@ -41,14 +41,14 @@ public class ProductEntity {
         this.name = name;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
+    public void setPrice(int price) {
+        this.price = price;
     }
 
-    public ProductEntity(Long id, String name, String description, int number) {
+    public ProductEntity(Long id, String name, String description, int price) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.number = number;
+        this.price = price;
     }
 }
