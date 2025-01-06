@@ -51,4 +51,12 @@ public class PriceService {
         return grossPrice.add(tax).subtract(discountAmount).add(shippingCost);
 
     }
+
+    public TaxEntity setTax(BigDecimal tax){
+        TaxEntity newTax = taxRepo.findById(1L).get();
+        newTax.setTax(tax);
+        return taxRepo.save(newTax);
+    }
+
+
 }
