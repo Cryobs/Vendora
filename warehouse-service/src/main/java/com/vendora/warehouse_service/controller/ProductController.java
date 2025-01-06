@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/product")
-public class ProductsController {
+public class ProductController {
     @GetMapping("/test")
     public String test(){
         return "TEST";

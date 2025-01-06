@@ -3,6 +3,7 @@ package com.vendora.warehouse_service.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "warehouse")
 public class WarehouseEntity {
 
     @Id
@@ -13,7 +14,7 @@ public class WarehouseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
-    private int stock_quantity = 0;
+    private int stockQuantity = 0;
 
     public WarehouseEntity() {
     }
@@ -34,11 +35,11 @@ public class WarehouseEntity {
         this.product = product;
     }
 
-    public int getStock_quantity() {
-        return stock_quantity;
+    public int getStockQuantity() {
+        return stockQuantity;
     }
 
-    public void setStock_quantity(int stock_quantity) {
-        this.stock_quantity = stock_quantity;
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 }

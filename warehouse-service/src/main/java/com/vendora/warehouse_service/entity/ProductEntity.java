@@ -51,4 +51,7 @@ public class ProductEntity {
         this.description = description;
         this.price = price;
     }
+
+    public ProductEntity() {
+    }
 }
