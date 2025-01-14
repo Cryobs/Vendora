@@ -1,6 +1,7 @@
 package com.vendora.price_service.service;
 
 
+import com.vendora.price_service.DTO.PromoCreateDTO;
 import com.vendora.price_service.entity.PromoCodeEntity;
 import com.vendora.price_service.repository.PromoCodeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +20,25 @@ public class PromoCodeService {
     }
 
     public PromoCodeEntity updatePromo(String promo){
-        PromoCodeEntity newPromo = promoCodeRepo.findById(promo).get();
+        PromoCodeEntity newPromo = promoCodeRepo.findByCode(promo).get(0);
         newPromo.setActive(!newPromo.isActive());
         return promoCodeRepo.save(newPromo);
     }
 
-    public PromoCodeEntity createPromo(PromoCodeEntity promo){
-        return promoCodeRepo.save(promo);
+    public PromoCodeEntity createPromo(PromoCreateDTO promo){
+        PromoCodeEntity promoCodeEntity = new PromoCodeEntity(
+                promo.getCode(),
+                promo.getDiscountType(),
+                promo.getDiscountValue(),
+                promo.getMaxUses(),
+                promo.getCurrentUses(),
+                promo.getStartDate(),
+                promo.getEndDate(),
+                promo.isActive());
+        return promoCodeRepo.save(promoCodeEntity);
+    }
+
+    public boolean isPromoActive(String code){
+        return promoCodeRepo.findByCodeAndIsActive(code, true).isPresent();
     }
 }

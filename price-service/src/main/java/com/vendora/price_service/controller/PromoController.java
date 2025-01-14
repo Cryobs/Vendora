@@ -1,6 +1,6 @@
 package com.vendora.price_service.controller;
 
-import com.vendora.price_service.entity.PromoCodeEntity;
+import com.vendora.price_service.DTO.PromoCreateDTO;
 import com.vendora.price_service.repository.PromoCodeRepo;
 import com.vendora.price_service.service.PromoCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,8 @@ public class PromoController {
 
     @Autowired
     private PromoCodeService promoCodeService;
+    @Autowired
+    private PromoCodeRepo promoCodeRepo;
 
     @GetMapping("/active")
     public ResponseEntity getAllActivePromo(){
@@ -33,7 +35,7 @@ public class PromoController {
     }
 
     @PostMapping ("/create")
-    public ResponseEntity createPromo(@RequestBody PromoCodeEntity promo){
+    public ResponseEntity createPromo(@RequestBody PromoCreateDTO promo){
         try {
             return ResponseEntity.ok(promoCodeService.createPromo(promo));
         }catch (Exception e){

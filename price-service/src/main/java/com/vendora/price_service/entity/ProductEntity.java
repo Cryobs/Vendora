@@ -1,4 +1,5 @@
-package com.vendora.warehouse_service.entity;
+package com.vendora.price_service.entity;
+
 
 import jakarta.persistence.*;
 
