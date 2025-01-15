@@ -1,7 +1,10 @@
 package com.vendora.price_service.entity;
 
 
+import com.vendora.price_service.DTO.DiscountDTO;
+import com.vendora.price_service.feign.WarehouseService;
 import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,6 +32,17 @@ public class DiscountEntity {
 
 
     public DiscountEntity() {
+    }
+
+    @Autowired
+    private WarehouseService warehouseService;
+
+    public DiscountEntity(DiscountDTO discountDTO) {
+        this.product = warehouseService.getProduct(discountDTO.getProductId()).getBody();
+        this.discountType = discountDTO.getDiscountType();
+        this.discountValue = discountDTO.getDiscountValue();
+        this.endDate = discountDTO.getEndDate();
+        this.startDate = discountDTO.getStartDate();
     }
 
     public UUID getId() {
@@ -79,7 +93,7 @@ public class DiscountEntity {
         this.endDate = endDate;
     }
 
-    public Boolean getActive() {
+    public Boolean isActive() {
         return isActive;
     }
 

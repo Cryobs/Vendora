@@ -23,8 +23,6 @@ public class PriceController {
 
     @Autowired
     private PriceService priceService;
-    @Autowired
-    private TaxRepo taxRepo;
 
     @PostMapping("/calculate")
     public ResponseEntity calculate(@RequestBody PriceCalculateDTO request){
@@ -35,39 +33,5 @@ public class PriceController {
         }
     }
 
-    @PostMapping("/tax")
-    public ResponseEntity setTax(@RequestBody TaxDTO tax){
-        try {
-            return ResponseEntity.ok(priceService.setTax(tax));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
-    }
 
-    @GetMapping("/tax/list")
-    public ResponseEntity getTaxList(){
-        try {
-            return ResponseEntity.ok(taxRepo.findAll());
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
-    }
-
-    @PostMapping("/shipping/create")
-    public ResponseEntity createShipping(@RequestBody ShippingDTO shipping){
-        try {
-            return ResponseEntity.ok(priceService.setShipping(shipping));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
-    }
-
-    @PostMapping("/shipping/list")
-    public ResponseEntity getShippingList(){
-        try {
-            return ResponseEntity.ok(priceService.getShippingList());
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
-    }
 }

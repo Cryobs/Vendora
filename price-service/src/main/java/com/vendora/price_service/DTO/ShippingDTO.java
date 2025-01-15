@@ -18,6 +18,7 @@ public class ShippingDTO {
     @Column(nullable = false)
     private String deliveryType;
 
+
     public String getZone() {
         return zone;
     }

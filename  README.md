@@ -1,6 +1,6 @@
 # Todo list
-- price service
-  - discount system
+- ~~price service~~
+  - ~~discount system~~
 - order service
   - create order
   - check order

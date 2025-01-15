@@ -7,7 +7,9 @@ import com.vendora.price_service.repository.PromoCodeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Service
 public class PromoCodeService {
@@ -36,6 +38,22 @@ public class PromoCodeService {
                 promo.getEndDate(),
                 promo.isActive());
         return promoCodeRepo.save(promoCodeEntity);
+    }
+
+    public BigDecimal calculatePromoCode(String promoCode, BigDecimal price){
+        BigDecimal code;
+        if (isPromoActive(promoCode)) {
+            PromoCodeEntity promoCodeEntity = promoCodeRepo.findByCodeAndIsActive(promoCode, true).get();
+            if (Objects.equals(promoCodeEntity.getDiscountType(), "Percent")) {
+                code = price.multiply(promoCodeEntity.getDiscountValue()).divide(BigDecimal.valueOf(100), 2);
+                System.out.println(code);
+            } else {
+                code = promoCodeEntity.getDiscountValue();
+            }
+        } else {
+            code = BigDecimal.ZERO;
+        }
+        return code;
     }
 
     public boolean isPromoActive(String code){
