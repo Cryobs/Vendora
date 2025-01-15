@@ -34,11 +34,9 @@ public class DiscountEntity {
     public DiscountEntity() {
     }
 
-    @Autowired
-    private WarehouseService warehouseService;
 
-    public DiscountEntity(DiscountDTO discountDTO) {
-        this.product = warehouseService.getProduct(discountDTO.getProductId()).getBody();
+    public DiscountEntity(DiscountDTO discountDTO, ProductEntity product) {
+        this.product = product;
         this.discountType = discountDTO.getDiscountType();
         this.discountValue = discountDTO.getDiscountValue();
         this.endDate = discountDTO.getEndDate();

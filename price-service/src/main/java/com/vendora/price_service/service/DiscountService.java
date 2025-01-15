@@ -4,6 +4,7 @@ import com.vendora.price_service.DTO.DiscountDTO;
 import com.vendora.price_service.DTO.TaxDTO;
 import com.vendora.price_service.entity.DiscountEntity;
 import com.vendora.price_service.entity.PromoCodeEntity;
+import com.vendora.price_service.feign.WarehouseService;
 import com.vendora.price_service.repository.DiscountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,13 +17,15 @@ import java.util.UUID;
 public class DiscountService {
     @Autowired
     private DiscountRepo discountRepo;
+    @Autowired
+    private WarehouseService warehouseService;
 
     public DiscountEntity setDiscount(DiscountDTO discountDTO){
         if(discountRepo.findByProductId(discountDTO.getProductId()).isPresent()){
             DiscountEntity discount = discountRepo.findByProductId(discountDTO.getProductId()).get();
             return discountRepo.save(discount);
         } else {
-            DiscountEntity discount = new DiscountEntity(discountDTO);
+            DiscountEntity discount = new DiscountEntity(discountDTO, warehouseService.getProduct(discountDTO.getProductId()).getBody());
             return discountRepo.save(discount);
         }
     }
