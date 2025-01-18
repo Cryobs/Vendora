@@ -9,6 +9,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -21,5 +22,8 @@ public interface PriceService {
 
     @PostMapping("/calculate/items")
     ApiResponse<List<FinalItemsPriceDTO>> calculateItems(@RequestBody OrderDTO order);
+
+    @PutMapping("/promocode/use/{promo}")
+    ApiResponse<Boolean> usePromo(@PathVariable String promo);
 }
 

@@ -101,9 +101,9 @@ public class PriceService {
 
 
         }
-        //promo code
-        BigDecimal code = promoCodeService.calculatePromoCode(promoCode, result.getFinalPrice());
-        result.setFinalPrice(result.getFinalPrice().subtract(code));
+
+
+
         //tax
         BigDecimal tax = taxService.calculateTax(result.getFinalPrice(), request.getRegion());
         result.setTotalTax(result.getTotalTax().add(tax));
@@ -111,6 +111,16 @@ public class PriceService {
         result.setTotalShipping(shippingRepo.findById(shippingRequest.getId()).get().getPrice());
 
         result.setFinalPrice(result.getFinalPrice().add(tax).add(result.getTotalShipping()));
+        //promo code
+        BigDecimal code = promoCodeService.calculatePromoCode(promoCode, result.getFinalPrice());
+        int compare = code.compareTo(result.getFinalPrice());
+        // if code > finalPrice
+        if (compare == 1){
+            code = result.getFinalPrice();
+        }
+        result.setFinalPrice(result.getFinalPrice().subtract(code));
+
+
         result.setTotalDiscount(result.getTotalDiscount().add(code));
 
 

@@ -4,6 +4,7 @@ import com.vendora.warehouse_service.entity.InventoryEntity;
 import com.vendora.warehouse_service.entity.InventoryMovementEntity;
 import com.vendora.warehouse_service.entity.ProductEntity;
 import com.vendora.warehouse_service.exception.ProductUnavailableException;
+import com.vendora.warehouse_service.exception.ProductUndefinedException;
 import com.vendora.warehouse_service.repository.InventoryMovementRepo;
 import com.vendora.warehouse_service.repository.InventoryRepo;
 import com.vendora.warehouse_service.repository.ProductsRepo;
@@ -25,7 +26,7 @@ public class WarehouseService {
     @Autowired
     private ProductsRepo productsRepo;
 
-    public static <T> Iterable<T> reverseIterable(Iterable<T> iterable) {
+    private static <T> Iterable<T> reverseIterable(Iterable<T> iterable) {
         List<T> list = new ArrayList<>();
         iterable.forEach(list::add);
 
@@ -38,21 +39,51 @@ public class WarehouseService {
         return reverseIterable(inventoryMovementRepo.findAll());
     }
 
+    public InventoryEntity reserveProduct(UUID productId, int quantity) throws ProductUndefinedException, ProductUnavailableException {
+        InventoryEntity productInventory = inventoryRepo.findByProductId(productId)
+                .orElseThrow(() -> new ProductUndefinedException("Undefined product id"));
+        if (productInventory.getQuantity() < quantity){
+            throw new ProductUnavailableException("Unavailable " + quantity + " products, available: " + productInventory.getQuantity());
+        } else {
+            productInventory.setQuantity(productInventory.getQuantity() - quantity);
+            productInventory.setReservedQuantity(productInventory.getReservedQuantity() + quantity);
+            productInventory.setLastUpdated(LocalDateTime.now());
+
+            moveInventory(productId, "reserve", quantity);
+
+            return productInventory;
+        }
+    }
+
+    private InventoryMovementEntity moveInventory(UUID productId, String changeType, int quantity){
+        InventoryMovementEntity inventoryMovement = moveInventory(productId, changeType);
+        inventoryMovement.setQuantity(quantity);
+        return inventoryMovementRepo.save(inventoryMovement);
+    }
+
+    private InventoryMovementEntity moveInventory(UUID productId, String changeType){
+        InventoryMovementEntity inventoryMovement = new InventoryMovementEntity();
+        inventoryMovement.setProductId(productId);
+        inventoryMovement.setChangeType(changeType);
+        inventoryMovement.setQuantity(0);
+        return inventoryMovementRepo.save(inventoryMovement);
+    }
+
     public InventoryEntity addStockToProduct(UUID productId, int additionalQuantity) throws ProductUnavailableException {
         Optional<InventoryEntity> optionalInventory = inventoryRepo.findByProductId(productId);
 
         if(optionalInventory.isPresent()){
             InventoryEntity inventory = optionalInventory.get();
-            InventoryMovementEntity inventoryMovement = new InventoryMovementEntity();
             //check if unavaible
             if(inventory.getQuantity() + additionalQuantity >= 0 ) {
                 inventory.setQuantity(inventory.getQuantity() + additionalQuantity);
                 inventory.setLastUpdated(LocalDateTime.now());
                 // inventory movement
-                inventoryMovement.setProductId(inventory.getProduct().getId());
-                inventoryMovement.setChangeType(additionalQuantity >= 0 ? "addition" : "removal");
-                inventoryMovement.setQuantity(additionalQuantity);
-                inventoryMovementRepo.save(inventoryMovement);
+                if (additionalQuantity >= 0){
+                    moveInventory(productId, "addition");
+                } else {
+                    moveInventory(productId, "removal");
+                }
                 return inventoryRepo.save(inventory);
             } else {
                 throw new ProductUnavailableException("Product with ID " + productId + " unavailable" +
@@ -69,11 +100,11 @@ public class WarehouseService {
                 newInventory.setQuantity(additionalQuantity);
                 newInventory.setLastUpdated(LocalDateTime.now());
 
-                InventoryMovementEntity inventoryMovement = new InventoryMovementEntity();
-                inventoryMovement.setProductId(newInventory.getProduct().getId());
-                inventoryMovement.setChangeType(additionalQuantity >= 0 ? "addition" : "removal");
-                inventoryMovement.setQuantity(additionalQuantity);
-                inventoryMovementRepo.save(inventoryMovement);
+                if (additionalQuantity >= 0){
+                    moveInventory(productId, "addition");
+                } else {
+                    moveInventory(productId, "removal");
+                }
                 return inventoryRepo.save(newInventory);
             } else {
                 throw new IllegalArgumentException("Product with ID " + productId + " not found.");

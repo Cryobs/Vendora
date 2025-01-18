@@ -7,6 +7,7 @@ import com.vendora.order_service.DTO.OrderItemDTO;
 import com.vendora.order_service.entity.OrderEntity;
 import com.vendora.order_service.entity.OrderItemEntity;
 import com.vendora.order_service.feign.PriceService;
+import com.vendora.order_service.feign.WarehouseService;
 import com.vendora.order_service.repository.OrderRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,9 @@ public class OrderService {
 
     @Autowired
     private OrderRepo orderRepo;
+
+    @Autowired
+    private WarehouseService warehouseService;
 
     private OrderItemEntity convertToOrderItemEntity(FinalItemsPriceDTO dto, OrderEntity order) {
         OrderItemEntity itemEntity = new OrderItemEntity();
@@ -46,6 +50,12 @@ public class OrderService {
         order.setCreatedAt(LocalDateTime.now());
         order.setStatus("Created");
 
+        //use promo
+        if(!request.getPromoCode().isEmpty() || request.getPromoCode() != null){
+            System.out.println(priceService.usePromo(request.getPromoCode()).getData());
+            System.out.println("test");
+        }
+
         //set prices
         if (finalPriceDTO.getFinalPrice() == null) {
             throw new IllegalArgumentException("Final price cannot be null");
@@ -60,15 +70,19 @@ public class OrderService {
 
         order = orderRepo.save(order);
 
+        // calculate items
         List<FinalItemsPriceDTO> itemsPriceDTOs = priceService.calculateItems(request).getData();
 
         List<OrderItemEntity> orderItems = new ArrayList<>();
         for (FinalItemsPriceDTO dto : itemsPriceDTOs) {
             OrderItemEntity itemEntity = convertToOrderItemEntity(dto, order);
+            //reserve product
+            warehouseService.reserveProduct(itemEntity.getProductId(), itemEntity.getQuantity());
             orderItems.add(itemEntity);
         }
 
         order.setItems(orderItems);
+
 
 
         return orderRepo.save(order);

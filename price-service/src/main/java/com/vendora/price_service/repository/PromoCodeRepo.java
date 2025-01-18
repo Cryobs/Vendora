@@ -10,6 +10,6 @@ import java.util.UUID;
 
 public interface PromoCodeRepo extends CrudRepository<PromoCodeEntity, UUID> {
     Optional<PromoCodeEntity> findByCodeAndIsActive(String code, boolean isActive);
-    ArrayList<PromoCodeEntity> findByIsActive(boolean isActive);
-    ArrayList<PromoCodeEntity> findByCode(String code);
+    Optional<ArrayList<PromoCodeEntity>> findByIsActive(boolean isActive);
+    Optional<ArrayList<PromoCodeEntity>> findByCode(String code);
 }
