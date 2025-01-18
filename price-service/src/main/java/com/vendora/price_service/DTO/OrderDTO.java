@@ -1,5 +1,6 @@
-package com.vendora.order_service.DTO;
+package com.vendora.price_service.DTO;
 
+import com.vendora.price_service.entity.ShippingEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -9,9 +10,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderDTO {
-    private ShippingDTO shipping;
+
+    @ManyToOne
+    @JoinColumn(name = "shippingId")
+    private ShippingEntity shipping;
+
     private String promoCode;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    private LocalDateTime updatedAt;
+
     private String region;
+
     private List<OrderItemDTO> items;
 
     public String getRegion() {
@@ -31,12 +43,29 @@ public class OrderDTO {
     }
 
 
-    public ShippingDTO getShipping() {
+
+    public ShippingEntity getShipping() {
         return shipping;
     }
 
-    public void setShipping(ShippingDTO shipping) {
+    public void setShipping(ShippingEntity shipping) {
         this.shipping = shipping;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public List<OrderItemDTO> getItems() {

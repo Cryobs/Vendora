@@ -1,5 +1,6 @@
 package com.vendora.order_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -32,6 +33,7 @@ public class OrderEntity {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<OrderItemEntity> items;
 
     public List<OrderItemEntity> getItems() {

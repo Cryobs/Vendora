@@ -1,23 +1,12 @@
-package com.vendora.order_service.entity;
+package com.vendora.order_service.DTO;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Entity
-@Table(name = "order_item")
-public class OrderItemEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
-
-    @ManyToOne
-    @JoinColumn(name = "orderId", nullable = false)
-    @JsonBackReference
-    private OrderEntity order;
+public class FinalItemsPriceDTO {
 
     @Column(nullable = false)
     private UUID productId;
@@ -26,18 +15,16 @@ public class OrderItemEntity {
     private int quantity;
 
     @Column(nullable = false)
-    private BigDecimal finalPrice;
+    private BigDecimal basePrice;
 
     @Column(nullable = false)
-    private BigDecimal basePrice;
+    private BigDecimal finalPrice;
 
     @Column(nullable = false)
     private BigDecimal totalDiscount;
 
     @Column(nullable = false)
     private BigDecimal totalTax;
-
-
 
     public BigDecimal getTotalDiscount() {
         return totalDiscount;
@@ -55,23 +42,7 @@ public class OrderItemEntity {
         this.totalTax = totalTax;
     }
 
-    public OrderItemEntity() {
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public OrderEntity getOrder() {
-        return order;
-    }
-
-    public void setOrder(OrderEntity order) {
-        this.order = order;
+    public FinalItemsPriceDTO() {
     }
 
     public UUID getProductId() {
@@ -90,19 +61,19 @@ public class OrderItemEntity {
         this.quantity = quantity;
     }
 
-    public BigDecimal getFinalPrice() {
-        return finalPrice;
-    }
-
-    public void setFinalPrice(BigDecimal finalPrice) {
-        this.finalPrice = finalPrice;
-    }
-
     public BigDecimal getBasePrice() {
         return basePrice;
     }
 
     public void setBasePrice(BigDecimal basePrice) {
         this.basePrice = basePrice;
+    }
+
+    public BigDecimal getFinalPrice() {
+        return finalPrice;
+    }
+
+    public void setFinalPrice(BigDecimal finalPrice) {
+        this.finalPrice = finalPrice;
     }
 }

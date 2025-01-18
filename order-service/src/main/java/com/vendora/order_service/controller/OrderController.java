@@ -21,12 +21,12 @@ public class OrderController {
     private OrderService orderService;
 
 
-//    @PostMapping("/create")
-//    public ResponseEntity createOrder(@RequestBody OrderDTO order){
-//        try {
-//            return ResponseEntity.ok(orderService.createOrder(order));
-//        }catch (Exception e){
-//            return ResponseEntity.badRequest().body("Error: " + e);
-//        }
-//    }
+    @PostMapping("/create")
+    public ResponseEntity createOrder(@RequestBody OrderDTO order){
+        try {
+            return ResponseEntity.ok(orderService.createOrder(order));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body("Error: " + e);
+        }
+    }
 }

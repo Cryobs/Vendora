@@ -1,7 +1,6 @@
 package com.vendora.price_service.controller;
 
 import com.vendora.price_service.DTO.DiscountDTO;
-import com.vendora.price_service.DTO.PriceCalculateDTO;
 import com.vendora.price_service.service.DiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

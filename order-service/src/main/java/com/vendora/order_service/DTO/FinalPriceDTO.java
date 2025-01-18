@@ -1,4 +1,5 @@
-package com.vendora.price_service.DTO;
+package com.vendora.order_service.DTO;
+
 
 import java.math.BigDecimal;
 
