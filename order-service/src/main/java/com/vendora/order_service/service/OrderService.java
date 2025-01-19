@@ -3,9 +3,9 @@ package com.vendora.order_service.service;
 import com.vendora.order_service.DTO.FinalItemsPriceDTO;
 import com.vendora.order_service.DTO.FinalPriceDTO;
 import com.vendora.order_service.DTO.OrderDTO;
-import com.vendora.order_service.DTO.OrderItemDTO;
 import com.vendora.order_service.entity.OrderEntity;
 import com.vendora.order_service.entity.OrderItemEntity;
+import com.vendora.order_service.exception.OrderUndefinedException;
 import com.vendora.order_service.feign.PriceService;
 import com.vendora.order_service.feign.WarehouseService;
 import com.vendora.order_service.repository.OrderRepo;
@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class OrderService {
@@ -41,9 +41,26 @@ public class OrderService {
         return itemEntity;
     }
 
+    public OrderEntity getOrder(UUID orderId) throws OrderUndefinedException {
+        return orderRepo.findById(orderId)
+                .orElseThrow(() -> new OrderUndefinedException("Order with id " + orderId + " is undefined"));
+    }
+
+    public Iterable<OrderEntity> getListOrder() {
+        return orderRepo.findAll();
+    }
+
+
+
+    public OrderEntity putOrderStatus(UUID orderId , String status) throws OrderUndefinedException {
+        OrderEntity order = getOrder(orderId);
+        order.setStatus(status);
+        return orderRepo.save(order);
+    }
+
     public OrderEntity createOrder(OrderDTO request){
 
-        FinalPriceDTO finalPriceDTO = priceService.calculate(request).getData();
+        FinalPriceDTO finalPriceDTO = priceService.calculate(request);
         System.out.println("Received FinalPriceDTO: " + finalPriceDTO.getFinalPrice()); // Логируем полученные данные
 
         OrderEntity order = new OrderEntity();
@@ -52,7 +69,7 @@ public class OrderService {
 
         //use promo
         if(!request.getPromoCode().isEmpty() || request.getPromoCode() != null){
-            System.out.println(priceService.usePromo(request.getPromoCode()).getData());
+            System.out.println(priceService.usePromo(request.getPromoCode()));
             System.out.println("test");
         }
 
@@ -71,7 +88,7 @@ public class OrderService {
         order = orderRepo.save(order);
 
         // calculate items
-        List<FinalItemsPriceDTO> itemsPriceDTOs = priceService.calculateItems(request).getData();
+        List<FinalItemsPriceDTO> itemsPriceDTOs = priceService.calculateItems(request);
 
         List<OrderItemEntity> orderItems = new ArrayList<>();
         for (FinalItemsPriceDTO dto : itemsPriceDTOs) {
@@ -86,5 +103,14 @@ public class OrderService {
 
 
         return orderRepo.save(order);
+    }
+
+    public List<OrderEntity> getListOrderByStatus(String status) throws OrderUndefinedException {
+        List<OrderEntity> orders = orderRepo.findAllByStatus(status);
+
+        if (orders.isEmpty()) {
+            throw new OrderUndefinedException("No orders with status " + status);
+        }
+        return orders;
     }
 }

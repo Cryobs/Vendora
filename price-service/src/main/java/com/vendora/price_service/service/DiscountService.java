@@ -4,6 +4,7 @@ import com.vendora.price_service.DTO.DiscountDTO;
 import com.vendora.price_service.DTO.TaxDTO;
 import com.vendora.price_service.entity.DiscountEntity;
 import com.vendora.price_service.entity.PromoCodeEntity;
+import com.vendora.price_service.exception.NoDiscountException;
 import com.vendora.price_service.feign.WarehouseService;
 import com.vendora.price_service.repository.DiscountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,15 +37,16 @@ public class DiscountService {
         return discountRepo.save(discount);
     }
 
-    public boolean haveDiscount(UUID product_id){
-        return discountRepo.findByProductId(product_id).isPresent();
+    public DiscountEntity haveDiscount(UUID product_id){
+        return discountRepo.findByProductId(product_id)
+                .orElseThrow(() ->new NoDiscountException("Product with id " + product_id + " don't have discount"));
     }
 
     public BigDecimal calculateDiscount(UUID productId, BigDecimal price){
         DiscountEntity discount;
-        BigDecimal discount_value = BigDecimal.ZERO;
-        if (haveDiscount(productId)) {
-            discount = discountRepo.findByProductId(productId).get();
+        BigDecimal discount_value;
+        try {
+            discount = haveDiscount(productId);
             if (Objects.equals(discount.getDiscountType(), "Percent")) {
                 discount_value = price
                         .divide(BigDecimal.valueOf(100), 2)
@@ -52,6 +54,8 @@ public class DiscountService {
             } else {
                 discount_value = discount.getDiscountValue();
             }
+        } catch (Exception e) {
+            discount_value = BigDecimal.ZERO;
         }
         return discount_value;
     }

@@ -27,31 +27,19 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody ProductDTO product){
-        try {
-            return ResponseEntity.ok(productService.registerProduct(product));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
+    public ResponseEntity<ProductEntity> register(@RequestBody ProductDTO product){
+        return ResponseEntity.ok(productService.registerProduct(product));
     }
     @GetMapping("/list")
-    public ResponseEntity productListAll(){
-        try {
-            return ResponseEntity.ok(productService.productListAll());
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
+    public ResponseEntity<Iterable<ProductEntity>> productListAll(){
+        return ResponseEntity.ok(productService.productListAll());
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductEntity> getProduct(@PathVariable UUID productId){
-        try {
-            ProductEntity product = productRepo.findById(productId)
-                    .orElseThrow(() -> new NoSuchElementException("Product not found with ID: " + productId));
-            return ResponseEntity.ok(product);
-        }catch (Exception e){
-            throw e;
-        }
+        ProductEntity product = productRepo.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException("Product not found with ID: " + productId));
+        return ResponseEntity.ok(product);
     }
 
 }

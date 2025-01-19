@@ -1,8 +1,10 @@
 package com.vendora.warehouse_service.controller;
 
 import com.vendora.warehouse_service.entity.InventoryEntity;
+import com.vendora.warehouse_service.entity.InventoryMovementEntity;
+import com.vendora.warehouse_service.exception.ProductUnavailableException;
+import com.vendora.warehouse_service.exception.ProductUndefinedException;
 import com.vendora.warehouse_service.service.WarehouseService;
-import com.vendora.warehouse_service.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,31 +18,19 @@ public class WarehouseController {
     private WarehouseService warehouseService;
 
     @PutMapping("/updateStock/{productId}")
-    public ResponseEntity updateStock(@PathVariable UUID productId, @RequestParam int quantity){
-        try {
-            return ResponseEntity.ok(warehouseService.addStockToProduct(productId, quantity));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
+    public ResponseEntity<InventoryEntity> updateStock(@PathVariable UUID productId, @RequestParam int quantity) throws ProductUnavailableException {
+        return ResponseEntity.ok(warehouseService.addStockToProduct(productId, quantity));
     }
 
     @GetMapping("/movement/list")
-    public ResponseEntity getInventoryMovementList(){
-        try {
-            return ResponseEntity.ok(warehouseService.getInventoryMovementList());
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
+    public ResponseEntity<Iterable<InventoryMovementEntity>> getInventoryMovementList(){
+        return ResponseEntity.ok(warehouseService.getInventoryMovementList());
     }
 
 
     @PutMapping("/reserve/{productId}")
-    public ResponseEntity<ApiResponse<InventoryEntity>> reserveProduct(@PathVariable UUID productId, @RequestParam int quantity){
-        try {
-            InventoryEntity product = warehouseService.reserveProduct(productId, quantity);
-            return ResponseEntity.ok(new ApiResponse<InventoryEntity>(product, null));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(new ApiResponse<InventoryEntity>(null, "Error: " + e));
-        }
+    public ResponseEntity<InventoryEntity> reserveProduct(@PathVariable UUID productId, @RequestParam int quantity) throws ProductUnavailableException, ProductUndefinedException {
+        InventoryEntity product = warehouseService.reserveProduct(productId, quantity);
+        return ResponseEntity.ok(product);
     }
 }

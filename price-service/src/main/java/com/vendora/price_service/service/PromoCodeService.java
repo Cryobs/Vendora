@@ -72,7 +72,7 @@ public class PromoCodeService {
         if (isPromoActive(promoCode)) {
             PromoCodeEntity promoCodeEntity = promoCodeRepo.findByCodeAndIsActive(promoCode, true).get();
             if (Objects.equals(promoCodeEntity.getDiscountType(), "Percent")) {
-                code = price.multiply(promoCodeEntity.getDiscountValue()).divide(BigDecimal.valueOf(100), 2);
+                code = price.multiply(promoCodeEntity.getDiscountValue()).divide(BigDecimal.valueOf(100), 2 );
             } else if (Objects.equals(promoCodeEntity.getDiscountType(), "Fix")) {
                 code = promoCodeEntity.getDiscountValue();
             }

@@ -1,6 +1,7 @@
 package com.vendora.price_service.controller;
 
 import com.vendora.price_service.DTO.ShippingDTO;
+import com.vendora.price_service.entity.ShippingEntity;
 import com.vendora.price_service.service.ShippingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,20 +18,12 @@ public class ShippingController {
     private ShippingService shippingService;
 
     @PostMapping("/create")
-    public ResponseEntity createShipping(@RequestBody ShippingDTO shipping){
-        try {
-            return ResponseEntity.ok(shippingService.createShipping(shipping));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
+    public ResponseEntity<ShippingEntity> createShipping(@RequestBody ShippingDTO shipping){
+        return ResponseEntity.ok(shippingService.createShipping(shipping));
     }
 
     @PostMapping("/list")
-    public ResponseEntity getShippingList(){
-        try {
-            return ResponseEntity.ok(shippingService.getShippingList());
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
+    public ResponseEntity<Iterable<ShippingEntity>> getShippingList(){
+        return ResponseEntity.ok(shippingService.getShippingList());
     }
 }

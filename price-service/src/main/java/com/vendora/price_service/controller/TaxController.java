@@ -1,6 +1,7 @@
 package com.vendora.price_service.controller;
 
 import com.vendora.price_service.DTO.TaxDTO;
+import com.vendora.price_service.entity.TaxEntity;
 import com.vendora.price_service.repository.TaxRepo;
 import com.vendora.price_service.service.PriceService;
 import com.vendora.price_service.service.TaxService;
@@ -17,21 +18,13 @@ public class TaxController {
     private TaxRepo taxRepo;
 
     @PostMapping
-    public ResponseEntity setTax(@RequestBody TaxDTO tax){
-        try {
-            return ResponseEntity.ok(taxService.setTax(tax));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
+    public ResponseEntity<TaxEntity> setTax(@RequestBody TaxDTO tax){
+        return ResponseEntity.ok(taxService.setTax(tax));
     }
 
     @GetMapping("/list")
-    public ResponseEntity getTaxList(){
-        try {
-            return ResponseEntity.ok(taxRepo.findAll());
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error: " + e);
-        }
+    public ResponseEntity<Iterable<TaxEntity>> getTaxList(){
+        return ResponseEntity.ok(taxRepo.findAll());
     }
 
 }
