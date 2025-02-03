@@ -7,6 +7,7 @@ import com.vendora.order_service.repository.OrderRepo;
 import com.vendora.order_service.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +27,6 @@ public class OrderController {
     @Autowired
     private OrderRepo orderRepo;
 
-
     @PostMapping("/create")
     public ResponseEntity<OrderEntity> createOrder(@RequestBody OrderDTO order){
         OrderEntity createdOrder = orderService.createOrder(order);
@@ -39,6 +39,7 @@ public class OrderController {
     }
 
     @GetMapping("/list")
+    @PreAuthorize("hasRole('client_admin')")
     public ResponseEntity<Iterable<OrderEntity>> getListOrder() {
         return ResponseEntity.ok(orderService.getListOrder());
     }

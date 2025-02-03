@@ -1,0 +1,7 @@
+FROM quay.io/keycloak/keycloak:26.1.0
+
+# Copy configuration in container
+COPY keycloak-config/realm-export.json /opt/keycloak/data/import/
+
+# Import Keycloak configuration on autostart
+CMD ["start-dev", "--import-realm"]
