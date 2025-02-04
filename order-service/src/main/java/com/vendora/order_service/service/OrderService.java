@@ -6,8 +6,8 @@ import com.vendora.order_service.DTO.OrderDTO;
 import com.vendora.order_service.entity.OrderEntity;
 import com.vendora.order_service.entity.OrderItemEntity;
 import com.vendora.order_service.exception.OrderUndefinedException;
-import com.vendora.order_service.feign.PriceService;
-import com.vendora.order_service.feign.WarehouseService;
+import com.vendora.order_service.feign.PriceClient;
+import com.vendora.order_service.feign.WarehouseClient;
 import com.vendora.order_service.repository.OrderRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,13 +21,13 @@ import java.util.UUID;
 public class OrderService {
 
     @Autowired
-    private PriceService priceService;
+    private PriceClient priceClient;
 
     @Autowired
     private OrderRepo orderRepo;
 
     @Autowired
-    private WarehouseService warehouseService;
+    private WarehouseClient warehouseClient;
 
     private OrderItemEntity convertToOrderItemEntity(FinalItemsPriceDTO dto, OrderEntity order) {
         OrderItemEntity itemEntity = new OrderItemEntity();
@@ -60,7 +60,7 @@ public class OrderService {
 
     public OrderEntity createOrder(OrderDTO request){
 
-        FinalPriceDTO finalPriceDTO = priceService.calculate(request);
+        FinalPriceDTO finalPriceDTO = priceClient.calculate(request);
         System.out.println("Received FinalPriceDTO: " + finalPriceDTO.getFinalPrice()); // Логируем полученные данные
 
         OrderEntity order = new OrderEntity();
@@ -69,7 +69,7 @@ public class OrderService {
 
         //use promo
         if(!request.getPromoCode().isEmpty() || request.getPromoCode() != null){
-            System.out.println(priceService.usePromo(request.getPromoCode()));
+            System.out.println(priceClient.usePromo(request.getPromoCode()));
             System.out.println("test");
         }
 
@@ -88,13 +88,13 @@ public class OrderService {
         order = orderRepo.save(order);
 
         // calculate items
-        List<FinalItemsPriceDTO> itemsPriceDTOs = priceService.calculateItems(request);
+        List<FinalItemsPriceDTO> itemsPriceDTOs = priceClient.calculateItems(request);
 
         List<OrderItemEntity> orderItems = new ArrayList<>();
         for (FinalItemsPriceDTO dto : itemsPriceDTOs) {
             OrderItemEntity itemEntity = convertToOrderItemEntity(dto, order);
             //reserve product
-            warehouseService.reserveProduct(itemEntity.getProductId(), itemEntity.getQuantity());
+            warehouseClient.reserveProduct(itemEntity.getProductId(), itemEntity.getQuantity());
             orderItems.add(itemEntity);
         }
 

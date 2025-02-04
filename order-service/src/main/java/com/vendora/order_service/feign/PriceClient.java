@@ -10,10 +10,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.UUID;
 
-@FeignClient(name = "price-service")
-public interface PriceService {
+@FeignClient(name = "price")
+public interface PriceClient {
     @PostMapping("/calculate")
     FinalPriceDTO calculate(@RequestBody OrderDTO order);
 

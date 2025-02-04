@@ -10,14 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 public class OrderController {
+
     @GetMapping("/test")
     public String test(){
-        return "TEST ORDER";
+        return "TEST";
     }
 
 
