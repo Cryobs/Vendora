@@ -10,6 +10,8 @@ import com.vendora.order_service.feign.PriceClient;
 import com.vendora.order_service.feign.WarehouseClient;
 import com.vendora.order_service.repository.OrderRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -41,24 +43,29 @@ public class OrderService {
         return itemEntity;
     }
 
-    public OrderEntity getOrder(UUID orderId) throws OrderUndefinedException {
-        return orderRepo.findById(orderId)
+    public OrderEntity getOrder(UUID orderId, Jwt jwt) throws OrderUndefinedException {
+        return orderRepo.findByIdAndUserId(orderId, jwt.getClaim("sub"))
                 .orElseThrow(() -> new OrderUndefinedException("Order with id " + orderId + " is undefined"));
     }
 
-    public Iterable<OrderEntity> getListOrder() {
+    public Iterable<OrderEntity> getOrdersList(Jwt jwt){
+        return orderRepo.findAllByUserId(jwt.getClaim("sub"));
+    }
+
+    public Iterable<OrderEntity> getListOfAllOrders() {
         return orderRepo.findAll();
     }
 
 
 
     public OrderEntity putOrderStatus(UUID orderId , String status) throws OrderUndefinedException {
-        OrderEntity order = getOrder(orderId);
+        OrderEntity order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new OrderUndefinedException("Order with id " + orderId + " is undefined"));
         order.setStatus(status);
         return orderRepo.save(order);
     }
 
-    public OrderEntity createOrder(OrderDTO request){
+    public OrderEntity createOrder(OrderDTO request, @AuthenticationPrincipal Jwt jwt){
 
         FinalPriceDTO finalPriceDTO = priceClient.calculate(request);
         System.out.println("Received FinalPriceDTO: " + finalPriceDTO.getFinalPrice()); // Логируем полученные данные
@@ -68,10 +75,10 @@ public class OrderService {
         order.setStatus("Created");
 
         //use promo
-        if(!request.getPromoCode().isEmpty() || request.getPromoCode() != null){
+        if (request.getPromoCode() != null && !request.getPromoCode().isBlank()) {
             System.out.println(priceClient.usePromo(request.getPromoCode()));
-            System.out.println("test");
         }
+
 
         //set prices
         if (finalPriceDTO.getFinalPrice() == null) {
@@ -82,6 +89,7 @@ public class OrderService {
         order.setTotalPrice(finalPriceDTO.getTotalPrice());
         order.setTotalTax(finalPriceDTO.getTotalTax());
         order.setFinalPrice(finalPriceDTO.getFinalPrice());
+        order.setUserId(jwt.getClaim("sub"));
 
 
 

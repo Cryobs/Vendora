@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient(name = "price")
+@FeignClient(name = "price-service")
 public interface PriceClient {
     @PostMapping("/calculate")
     FinalPriceDTO calculate(@RequestBody OrderDTO order);

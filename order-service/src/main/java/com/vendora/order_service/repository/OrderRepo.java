@@ -9,4 +9,6 @@ import java.util.UUID;
 
 public interface OrderRepo extends CrudRepository<OrderEntity, UUID> {
     List<OrderEntity> findAllByStatus(String status);
+    Optional<OrderEntity> findByIdAndUserId(UUID id, String userId);
+    List<OrderEntity> findAllByUserId(String userId);
 }

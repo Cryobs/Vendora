@@ -16,6 +16,9 @@ public class OrderEntity {
     private UUID id;
 
     @Column(nullable = false)
+    private String userId;
+
+    @Column(nullable = false)
     private String status; // pending, completed, cancelled
 
     @Column(nullable = false)
@@ -109,5 +112,13 @@ public class OrderEntity {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

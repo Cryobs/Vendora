@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@FeignClient(name = "warehouse")
+@FeignClient(name = "warehouse-service")
 public interface WarehouseClient {
     @PutMapping("/reserve/{productId}")
     public ResponseEntity<?> reserveProduct(@PathVariable UUID productId, @RequestParam int quantity);

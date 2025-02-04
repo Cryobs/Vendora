@@ -8,6 +8,8 @@ import com.vendora.order_service.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -28,28 +30,38 @@ public class OrderController {
     private OrderRepo orderRepo;
 
     @PostMapping("/create")
-    public ResponseEntity<OrderEntity> createOrder(@RequestBody OrderDTO order){
-        OrderEntity createdOrder = orderService.createOrder(order);
+    @PreAuthorize("hasRole('client_user')")
+    public ResponseEntity<OrderEntity> createOrder(@RequestBody OrderDTO order, @AuthenticationPrincipal Jwt jwt){
+        OrderEntity createdOrder = orderService.createOrder(order, jwt);
         return ResponseEntity.ok(createdOrder);
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderEntity> getOrder(@PathVariable UUID orderId) throws OrderUndefinedException {
-        return ResponseEntity.ok(orderService.getOrder(orderId));
+    @PreAuthorize("hasRole('client_user')")
+    public ResponseEntity<OrderEntity> getOrder(@PathVariable UUID orderId, @AuthenticationPrincipal Jwt jwt) throws OrderUndefinedException {
+        return ResponseEntity.ok(orderService.getOrder(orderId, jwt));
+    }
+
+    @GetMapping("/list/all")
+    @PreAuthorize("hasRole('client_admin')")
+    public ResponseEntity<Iterable<OrderEntity>> getListOfAllOrders() {
+        return ResponseEntity.ok(orderService.getListOfAllOrders());
     }
 
     @GetMapping("/list")
-    @PreAuthorize("hasRole('client_admin')")
-    public ResponseEntity<Iterable<OrderEntity>> getListOrder() {
-        return ResponseEntity.ok(orderService.getListOrder());
+    @PreAuthorize("hasRole('client_user')")
+    public ResponseEntity<Iterable<OrderEntity>> getOrdersList(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(orderService.getOrdersList(jwt));
     }
 
     @GetMapping("/list/{status}")
+    @PreAuthorize("hasRole('client_admin')")
     public ResponseEntity<Iterable<OrderEntity>> getListOrderByStatus(@PathVariable String status) throws OrderUndefinedException {
         return ResponseEntity.ok(orderService.getListOrderByStatus(status));
     }
 
     @PutMapping("/status/{orderId}")
+    @PreAuthorize("hasRole('client_admin')")
     public ResponseEntity<OrderEntity> putOrderStatus(@PathVariable UUID orderId, @RequestParam String status) throws OrderUndefinedException {
         return ResponseEntity.ok(orderService.putOrderStatus(orderId, status));
     }

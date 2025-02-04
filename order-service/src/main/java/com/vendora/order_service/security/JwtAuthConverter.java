@@ -24,8 +24,8 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
     private final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter =
             new JwtGrantedAuthoritiesConverter();
 
-    @Value("${jwt.auth.converter.principleAttribute}")
-    private String principleAttribute;
+    @Value("${jwt.auth.converter.principalAttribute}")
+    private String principalAttribute;
     @Value("${jwt.auth.converter.resourceId}")
     private String resourceId;
 
@@ -40,14 +40,14 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
         return new JwtAuthenticationToken(
                 jwt,
                 authorities ,
-                getPrincipleClaimName(jwt)
+                getPrincipalClaimName(jwt)
         );
     }
 
-    private String getPrincipleClaimName(Jwt jwt){
+    private String getPrincipalClaimName(Jwt jwt){
         String claimName = JwtClaimNames.SUB;
-        if (principleAttribute != null){
-            claimName = principleAttribute;
+        if (principalAttribute != null){
+            claimName = principalAttribute;
         }
         return jwt.getClaim(claimName);
     }
