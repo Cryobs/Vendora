@@ -3,11 +3,9 @@ package com.vendora.price_service.service;
 
 import com.vendora.price_service.DTO.*;
 import com.vendora.price_service.entity.ShippingEntity;
-import com.vendora.price_service.feign.WarehouseService;
+import com.vendora.price_service.feign.WarehouseClient;
 import com.vendora.price_service.repository.ShippingRepo;
 import feign.FeignException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +21,7 @@ public class PriceService {
     @Autowired
     private PromoCodeService promoCodeService;
     @Autowired
-    private WarehouseService warehouseService;
+    private WarehouseClient warehouseClient;
     @Autowired
     private DiscountService discountService;
     @Autowired
@@ -37,7 +35,7 @@ public class PriceService {
         for (OrderItemDTO item : request.getItems()){
             BigDecimal basePrice;
             try {
-                basePrice = warehouseService.getProduct(item.getProductId()).getBody().getBasePrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+                basePrice = warehouseClient.getProduct(item.getProductId()).getBody().getBasePrice().multiply(BigDecimal.valueOf(item.getQuantity()));
             } catch (FeignException.NotFound e) {
                 throw new RuntimeException("Product not found: " + item.getProductId(), e);
             } catch (Exception e) {
@@ -83,7 +81,7 @@ public class PriceService {
         for (OrderItemDTO item : request.getItems()){
             BigDecimal basePrice;
             try {
-                basePrice = warehouseService.getProduct(item.getProductId()).getBody().getBasePrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+                basePrice = warehouseClient.getProduct(item.getProductId()).getBody().getBasePrice().multiply(BigDecimal.valueOf(item.getQuantity()));
             } catch (FeignException.NotFound e) {
                 throw new RuntimeException("Product not found: " + item.getProductId(), e);
             } catch (Exception e) {

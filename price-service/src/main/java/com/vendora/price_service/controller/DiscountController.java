@@ -5,6 +5,7 @@ import com.vendora.price_service.entity.DiscountEntity;
 import com.vendora.price_service.service.DiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -18,11 +19,13 @@ public class DiscountController {
     private DiscountService discountService;
 
     @PostMapping("/set")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DiscountEntity> setDiscount(@RequestBody DiscountDTO discountDTO){
         return ResponseEntity.ok( discountService.setDiscount(discountDTO));
     }
 
     @PutMapping("/update/{productId}")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DiscountEntity> updatePromo(@PathVariable UUID productId){
         return ResponseEntity.ok(discountService.updateDiscount(productId));
     }

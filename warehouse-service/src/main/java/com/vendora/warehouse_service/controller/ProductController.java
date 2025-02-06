@@ -7,6 +7,7 @@ import com.vendora.warehouse_service.repository.ProductsRepo;
 import com.vendora.warehouse_service.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -27,10 +28,12 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("/register")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<ProductEntity> register(@RequestBody ProductDTO product){
         return ResponseEntity.ok(productService.registerProduct(product));
     }
     @GetMapping("/list")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Iterable<ProductEntity>> productListAll(){
         return ResponseEntity.ok(productService.productListAll());
     }

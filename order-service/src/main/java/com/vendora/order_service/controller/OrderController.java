@@ -30,38 +30,38 @@ public class OrderController {
     private OrderRepo orderRepo;
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('client_user')")
+    @PreAuthorize("hasRole('user')")
     public ResponseEntity<OrderEntity> createOrder(@RequestBody OrderDTO order, @AuthenticationPrincipal Jwt jwt){
         OrderEntity createdOrder = orderService.createOrder(order, jwt);
         return ResponseEntity.ok(createdOrder);
     }
 
     @GetMapping("/{orderId}")
-    @PreAuthorize("hasRole('client_user')")
+    @PreAuthorize("hasRole('user')")
     public ResponseEntity<OrderEntity> getOrder(@PathVariable UUID orderId, @AuthenticationPrincipal Jwt jwt) throws OrderUndefinedException {
         return ResponseEntity.ok(orderService.getOrder(orderId, jwt));
     }
 
     @GetMapping("/list/all")
-    @PreAuthorize("hasRole('client_admin')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Iterable<OrderEntity>> getListOfAllOrders() {
         return ResponseEntity.ok(orderService.getListOfAllOrders());
     }
 
     @GetMapping("/list")
-    @PreAuthorize("hasRole('client_user')")
+    @PreAuthorize("hasRole('user')")
     public ResponseEntity<Iterable<OrderEntity>> getOrdersList(@AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(orderService.getOrdersList(jwt));
     }
 
     @GetMapping("/list/{status}")
-    @PreAuthorize("hasRole('client_admin')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Iterable<OrderEntity>> getListOrderByStatus(@PathVariable String status) throws OrderUndefinedException {
         return ResponseEntity.ok(orderService.getListOrderByStatus(status));
     }
 
     @PutMapping("/status/{orderId}")
-    @PreAuthorize("hasRole('client_admin')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<OrderEntity> putOrderStatus(@PathVariable UUID orderId, @RequestParam String status) throws OrderUndefinedException {
         return ResponseEntity.ok(orderService.putOrderStatus(orderId, status));
     }

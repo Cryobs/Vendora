@@ -2,9 +2,7 @@ package com.vendora.price_service.entity;
 
 
 import com.vendora.price_service.DTO.DiscountDTO;
-import com.vendora.price_service.feign.WarehouseService;
 import jakarta.persistence.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
