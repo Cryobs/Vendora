@@ -1,12 +1,10 @@
 package com.vendora.user_service.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vendora.user_service.DTO.ChangePasswordDTO;
+import com.vendora.user_service.DTO.ChangeUserDataDTO;
 import com.vendora.user_service.DTO.LoginDTO;
 import com.vendora.user_service.DTO.RegisterDTO;
 import jakarta.ws.rs.core.Response;
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -19,20 +17,14 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import org.keycloak.OAuth2Constants;
+import org.springframework.web.server.ResponseStatusException;
 
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -45,6 +37,9 @@ public class UserService {
 
     @Value("${keycloak.realm}")
     private String realm;
+
+    @Value("${jwt.auth.converter.principalAttribute}")
+    private String principalAttribute;
 
 
 
@@ -61,8 +56,11 @@ public class UserService {
         this.clientSecret = clientSecret;
     }
 
+    public UserRepresentation getUserByUsername(String username){
+        return keycloak.realm(realm).users().searchByUsername(username, true).getFirst();
+    }
+
     public AccessTokenResponse login(LoginDTO user){
-        System.out.println("test");
         Keycloak loginKeycloak = KeycloakBuilder.builder()
                 .grantType("password")
                 .password(user.getPassword())
@@ -71,7 +69,6 @@ public class UserService {
                 .serverUrl(keycloakUrl)
                 .clientId("vendora-rest-api")
                 .build();
-        System.out.println("test2");
         return loginKeycloak.tokenManager().getAccessToken();
     }
 
@@ -116,28 +113,6 @@ public class UserService {
         return login(loginDTO);
     }
 
-
-    public String getAccessToken() {
-        String response = webClient.post()
-                .uri(keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .bodyValue("client_id=" + clientId + "&client_secret=" + clientSecret + "&grant_type=client_credentials")
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-
-        try {
-            // Преобразуем строку в JsonNode
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonResponse = objectMapper.readTree(response);
-
-            // Извлекаем access_token
-            return jsonResponse.get("access_token").asText();
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing access token from response", e);
-        }
-    }
-
     private Map<String, Object> createUserPayload(RegisterDTO user) {
         return Map.of(
                 "username", user.getUsername(),
@@ -155,5 +130,103 @@ public class UserService {
     }
 
 
+    public Map<String, Object> changePassword(Jwt jwt, ChangePasswordDTO changePasswordDTO){
+        if (!Objects.equals(changePasswordDTO.getNewPassword(), changePasswordDTO.getRepeatNewPassword())){
+            throw new IllegalArgumentException("The new passwords are not the same");
+        } else if (Objects.equals(changePasswordDTO.getNewPassword(), changePasswordDTO.getCurrentPassword())){
+            throw new IllegalArgumentException("The new password cannot be the same as current");
+        }
+        else {
+            try {
+                //test current password
+                LoginDTO testPass = new LoginDTO(jwt.getClaimAsString(principalAttribute), changePasswordDTO.getCurrentPassword());
+                login(testPass);
+
+                //get user
+                RealmResource realmResource = keycloak.realm(realm);
+                UserResource userResource = realmResource.users().get(jwt.getSubject());
+
+                //define password credentials
+                CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
+                credentialRepresentation.setTemporary(false);
+                credentialRepresentation.setType("password");
+                credentialRepresentation.setValue(changePasswordDTO.getNewPassword());
+
+                //change password
+                userResource.resetPassword(credentialRepresentation);
+                return Map.of("message", "Password changed");
+            } catch (Exception e){
+                throw e;
+            }
+        }
+    }
+
+
+    public Map<String, Object> changeUserData(Jwt jwt, ChangeUserDataDTO newUserData){
+        RealmResource realmResource = keycloak.realm(realm);
+        UserResource userResource = realmResource.users().get(jwt.getSubject());
+        UserRepresentation newUser = userResource.toRepresentation();
+        if (newUserData.getEmail() != null){
+            newUser.setEmail(newUserData.getEmail());
+        }
+        if (newUserData.getUsername() != null){
+            newUser.setUsername(newUserData.getUsername());
+        }
+        if (newUserData.getFirstName() != null){
+            newUser.setFirstName(newUserData.getFirstName());
+        }
+        if (newUserData.getLastName() != null){
+            newUser.setLastName(newUserData.getLastName());
+        }
+        userResource.update(newUser);
+        return Map.of("message", "User data changed");
+    }
+
+    public Map<String, Object> deleteUser(Jwt jwt, String username) throws Exception {
+        //user role
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+        Collection<String> userRoles = (Collection<String>) realmAccess.get("roles");
+
+        if (Objects.equals(jwt.getClaimAsString(principalAttribute), username) || userRoles.contains("admin")){
+            RealmResource realmResource = keycloak.realm(realm);
+            UserRepresentation userRepresentation = realmResource.users().searchByUsername(username, true).getFirst();
+            UserResource userResource = realmResource.users().get(userRepresentation.getId());
+            userResource.remove();
+            return Map.of("message", "User deleted");
+        }
+
+        throw new ResponseStatusException(HttpStatusCode.valueOf(401), "Unauthorized");
+    }
+    public Map<String, Object> assignRoles(String username, List<String> roles){
+        RealmResource realmResource = keycloak.realm(realm);
+        UserRepresentation userRepresentation = realmResource.users().searchByUsername(username, true).getFirst();
+        UserResource userResource = realmResource.users().get(userRepresentation.getId());
+
+        List<RoleRepresentation> roleList = new ArrayList<>();
+        for (String el : roles){
+            RoleRepresentation roleRepresentation = realmResource.roles().get(el).toRepresentation();
+            roleList.add(roleRepresentation);
+        }
+
+        userResource.roles().realmLevel().add(roleList);
+
+        return Map.of("message", "Roles assigned");
+    }
+
+    public Map<String, Object> deleteRoles(String username, List<String> roles){
+        RealmResource realmResource = keycloak.realm(realm);
+        UserRepresentation userRepresentation = realmResource.users().searchByUsername(username, true).getFirst();
+        UserResource userResource = realmResource.users().get(userRepresentation.getId());
+
+        List<RoleRepresentation> roleList = new ArrayList<>();
+        for (String el : roles){
+            RoleRepresentation roleRepresentation = realmResource.roles().get(el).toRepresentation();
+            roleList.add(roleRepresentation);
+        }
+
+        userResource.roles().realmLevel().remove(roleList);
+
+        return Map.of("message", "Roles removed");
+    }
 
 }
