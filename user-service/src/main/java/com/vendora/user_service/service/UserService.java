@@ -75,7 +75,6 @@ public class UserService {
     public AccessTokenResponse register(RegisterDTO userReg) {
         //define user
         UserRepresentation user = new UserRepresentation();
-
         //set password
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setTemporary(false);
@@ -90,6 +89,7 @@ public class UserService {
         user.setFirstName(userReg.getFirstName());
         user.setLastName(userReg.getLastName());
         user.setRealmRoles(List.of("user"));
+
 
         RealmResource realmResource = keycloak.realm(realm);
         UsersResource usersResource = realmResource.users();
