@@ -110,9 +110,28 @@
         "clientRole": false,
         "containerId": "0d86bcce-6c00-4daa-89e4-6359335f47c8",
         "attributes": {}
+      },
+      {
+        "id": "ec340b4a-220c-479c-979e-8523ade77d5d",
+        "name": "vendor",
+        "description": "Vendor role for Vendora",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "0d86bcce-6c00-4daa-89e4-6359335f47c8",
+        "attributes": {}
+      },
+      {
+        "id": "595dc848-1dde-4a80-abdb-312c29487227",
+        "name": "test",
+        "description": "",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "0d86bcce-6c00-4daa-89e4-6359335f47c8",
+        "attributes": {}
       }
     ],
     "client": {
+      "catalog-service-client": [],
       "realm-management": [
         {
           "id": "9eb47db9-2533-4eea-9529-c06e5c7faca0",
@@ -508,6 +527,22 @@
   "webAuthnPolicyPasswordlessExtraOrigins": [],
   "users": [
     {
+      "id": "5ad202a4-d832-4778-a7c8-1f12a2b9ad93",
+      "username": "service-account-catalog-service-client",
+      "emailVerified": false,
+      "createdTimestamp": 1738919180903,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "catalog-service-client",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-vendora"
+      ],
+      "notBefore": 0,
+      "groups": []
+    },
+    {
       "id": "0faef321-5a27-406a-804b-c85cdb7775a9",
       "username": "service-account-order-service-client",
       "emailVerified": false,
@@ -813,6 +848,64 @@
       ]
     },
     {
+      "id": "53f56d4e-dbbb-4357-925d-9935e1634bd7",
+      "clientId": "catalog-service-client",
+      "name": "",
+      "description": "",
+      "rootUrl": "http://localhost:8080/catalog",
+      "adminUrl": "http://localhost:8080/catalog",
+      "baseUrl": "http://localhost:8080/catalog",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "**********",
+      "redirectUris": [
+        "http://localhost:8080/catalog/*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1738919180",
+        "backchannel.logout.session.required": "true",
+        "post.logout.redirect.uris": "http://localhost:8080/catalog",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "service_account",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "organization",
+        "microprofile-jwt"
+      ]
+    },
+    {
       "id": "af119042-f50c-48b0-9acf-bebdcd774364",
       "clientId": "order-service-client",
       "name": "Clinet of Order Service",
@@ -856,8 +949,8 @@
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
-        "service_account",
         "web-origins",
+        "service_account",
         "acr",
         "roles",
         "profile",
@@ -914,8 +1007,8 @@
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
-        "service_account",
         "web-origins",
+        "service_account",
         "acr",
         "roles",
         "profile",
@@ -1085,8 +1178,8 @@
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
-        "service_account",
         "web-origins",
+        "service_account",
         "acr",
         "roles",
         "profile",
@@ -1200,8 +1293,8 @@
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
-        "service_account",
         "web-origins",
+        "service_account",
         "acr",
         "roles",
         "profile",
