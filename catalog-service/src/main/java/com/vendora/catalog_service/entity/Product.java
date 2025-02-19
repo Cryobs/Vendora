@@ -3,6 +3,7 @@ package com.vendora.catalog_service.entity;
 import jakarta.persistence.Column;
 import org.springframework.data.annotation.Id;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Map;
 
 
@@ -20,16 +21,13 @@ public class Product {
         this.userId = userId;
     }
 
-    @Column(nullable = false)
     private String userId;
-    @Column(nullable = false)
     private String name;
     @Column(nullable = true)
     private String description;
-    @Column(nullable = false)
     private BigDecimal basePrice;
-    @Column(nullable = false)
     private String category;
+    private int purchasesCount = 0;
     @Column(nullable = true)
     private Map<String, Object> characteristics;
 
@@ -41,6 +39,18 @@ public class Product {
         this.characteristics = characteristics;
     }
 
+
+    public int getPurchasesCount() {
+        return purchasesCount;
+    }
+
+    public void setPurchasesCount(int purchasesCount) {
+        this.purchasesCount = purchasesCount;
+    }
+
+    public void addPurchasesCount() {
+        this.purchasesCount += 1;
+    }
 
     public Product(String userId, String name, String description, BigDecimal basePrice, String category, Map<String, Object> characteristics) {
         this.name = name;

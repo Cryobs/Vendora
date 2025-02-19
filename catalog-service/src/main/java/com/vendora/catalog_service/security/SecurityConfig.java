@@ -22,7 +22,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("admin").authenticated()
+                        .requestMatchers("/admin").authenticated()
                         .anyRequest().permitAll()
                 )
 

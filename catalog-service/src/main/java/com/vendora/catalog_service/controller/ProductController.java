@@ -32,14 +32,30 @@ public class ProductController {
         return ResponseEntity.ok(productService.deleteProduct(productId, jwt));
     }
 
+    @DeleteMapping("/admin/all")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<String> deleteAllProducts()  {
+        return ResponseEntity.ok(productService.deleteAllProducts());
+    }
+
+    @PutMapping("/admin/{productId}/purchasesCount")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Product> addPurchasesCount(@PathVariable String productId){
+        return ResponseEntity.ok(productService.addPurchasesCount(productId));
+    }
+
     @GetMapping("/{productId}")
     public ResponseEntity<Product> getProduct(@PathVariable String productId){
         return ResponseEntity.ok(productService.getProduct(productId));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<Product>> search(@RequestParam String q, @RequestParam int page, @RequestParam int psize){
-        return ResponseEntity.ok(productService.search(q, page, psize));
+    public ResponseEntity<Page<Product>> search(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int psize,
+            @RequestParam(defaultValue = "purchasesCount_desc") String sort){
+        return ResponseEntity.ok(productService.search(q, page - 1, psize, sort));
     }
 
 }

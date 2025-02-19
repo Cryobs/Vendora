@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +23,6 @@ public class ProductService {
     @Autowired
     private ProductsRepo productsRepo;
     @Autowired
-    private SyncService syncService;
-    @Autowired
     private ProductSearchRepo productSearchRepo;
 
     public Product registerProduct(ProductDTO product, Jwt jwt){
@@ -30,6 +30,14 @@ public class ProductService {
         Product finalProduct = productsRepo.save(productEntity);
         productSearchRepo.save(productEntity);
         return finalProduct;
+    }
+
+    public Product addPurchasesCount(String productId){
+        Product productEntity = productsRepo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        productEntity.addPurchasesCount();
+        productSearchRepo.save(productEntity);
+        return productsRepo.save(productEntity);
     }
 
     public String deleteProduct(String productId, Jwt jwt) throws IllegalAccessException {
@@ -44,13 +52,21 @@ public class ProductService {
         }
     }
 
+    public String deleteAllProducts(){
+        productsRepo.deleteAll();
+        productSearchRepo.deleteAll();
+        return "All products deleted";
+    }
+
     public Product getProduct(String productId){
         return productsRepo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    public Page<Product> search(String keyword, int page, int psize) {
-        Pageable pageable = PageRequest.of(page, psize);
+    public Page<Product> search(String keyword, int page, int psize, String sort) {
+        Sort.Direction direction = sort.split("_")[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        String sortBy = sort.split("_")[0];
+        Pageable pageable = PageRequest.of(page, psize, Sort.by(direction, sortBy));
         return productSearchRepo.findByNameContaining(keyword, pageable);
     }
 
