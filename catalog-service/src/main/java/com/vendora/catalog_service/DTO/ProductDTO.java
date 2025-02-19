@@ -13,7 +13,7 @@ public class ProductDTO {
     private String description;
 
     @Column(nullable = false)
-    private BigDecimal basePrice;
+    private Double basePrice;
 
     @Column(nullable = false)
     private String category;
@@ -55,11 +55,11 @@ public class ProductDTO {
         this.description = description;
     }
 
-    public BigDecimal getBasePrice() {
+    public Double getBasePrice() {
         return basePrice;
     }
 
-    public void setBasePrice(BigDecimal basePrice) {
+    public void setBasePrice(Double basePrice) {
         this.basePrice = basePrice;
     }
 

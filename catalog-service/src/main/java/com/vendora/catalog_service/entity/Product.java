@@ -25,7 +25,7 @@ public class Product {
     private String name;
     @Column(nullable = true)
     private String description;
-    private BigDecimal basePrice;
+    private Double basePrice;
     private String category;
     private int purchasesCount = 0;
     @Column(nullable = true)
@@ -52,7 +52,7 @@ public class Product {
         this.purchasesCount += 1;
     }
 
-    public Product(String userId, String name, String description, BigDecimal basePrice, String category, Map<String, Object> characteristics) {
+    public Product(String userId, String name, String description, Double basePrice, String category, Map<String, Object> characteristics) {
         this.name = name;
         this.userId = userId;
         this.description = description;
@@ -85,11 +85,11 @@ public class Product {
         this.description = description;
     }
 
-    public BigDecimal getBasePrice() {
+    public Double getBasePrice() {
         return basePrice;
     }
 
-    public void setBasePrice(BigDecimal basePrice) {
+    public void setBasePrice(Double basePrice) {
         this.basePrice = basePrice;
     }
 

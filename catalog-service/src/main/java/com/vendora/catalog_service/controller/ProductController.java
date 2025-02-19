@@ -6,12 +6,15 @@ import com.vendora.catalog_service.service.ProductService;
 import jakarta.ws.rs.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/product")
@@ -50,12 +53,15 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<Product>> search(
-            @RequestParam String q,
+    public ResponseEntity<List<Product>> search(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int psize,
             @RequestParam(defaultValue = "purchasesCount_desc") String sort){
-        return ResponseEntity.ok(productService.search(q, page - 1, psize, sort));
+        return ResponseEntity.ok(productService.search(q, page - 1, psize, sort, category, minPrice, maxPrice));
     }
 
 }
