@@ -5,9 +5,9 @@ import com.vendora.warehouse_service.entity.InventoryMovementEntity;
 import com.vendora.warehouse_service.entity.ProductEntity;
 import com.vendora.warehouse_service.exception.ProductUnavailableException;
 import com.vendora.warehouse_service.exception.ProductUndefinedException;
+import com.vendora.warehouse_service.feign.CatalogClient;
 import com.vendora.warehouse_service.repository.InventoryMovementRepo;
 import com.vendora.warehouse_service.repository.InventoryRepo;
-import com.vendora.warehouse_service.repository.ProductsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class WarehouseService {
     private InventoryMovementRepo inventoryMovementRepo;
 
     @Autowired
-    private ProductsRepo productsRepo;
+    private CatalogClient catalogClient;
 
     private static <T> Iterable<T> reverseIterable(Iterable<T> iterable) {
         List<T> list = new ArrayList<>();
@@ -86,15 +86,14 @@ public class WarehouseService {
                 }
                 return inventoryRepo.save(inventory);
             } else {
-                throw new ProductUnavailableException("Product with ID " + productId + " unavailable" +
+                throw new ProductUnavailableException("ProductEntity with ID " + productId + " unavailable" +
                         (inventory.getQuantity() != 0 ?  " with this quantity, available only " + inventory.getQuantity() : "")
                 );
             }
         } else {
-            Optional<ProductEntity> optionalProduct = productsRepo.findById(productId);
+            ProductEntity product = catalogClient.getProduct(productId).getBody();
             //register product in warehouse if absent
-            if (optionalProduct.isPresent()) {
-                ProductEntity product = optionalProduct.get();
+            if (product != null) {
                 InventoryEntity newInventory = new InventoryEntity();
                 newInventory.setProduct(product);
                 newInventory.setQuantity(additionalQuantity);
@@ -107,7 +106,7 @@ public class WarehouseService {
                 }
                 return inventoryRepo.save(newInventory);
             } else {
-                throw new IllegalArgumentException("Product with ID " + productId + " not found.");
+                throw new IllegalArgumentException("ProductEntity with ID " + productId + " not found.");
             }
         }
     }

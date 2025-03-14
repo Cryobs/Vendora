@@ -7,6 +7,7 @@ import com.vendora.price_service.service.PriceService;
 import com.vendora.price_service.service.TaxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +19,7 @@ public class TaxController {
     private TaxRepo taxRepo;
 
     @PostMapping
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<TaxEntity> setTax(@RequestBody TaxDTO tax){
         return ResponseEntity.ok(taxService.setTax(tax));
     }

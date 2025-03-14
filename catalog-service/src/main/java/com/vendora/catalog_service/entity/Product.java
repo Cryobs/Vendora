@@ -1,34 +1,41 @@
 package com.vendora.catalog_service.entity;
 
-import jakarta.persistence.Column;
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.elasticsearch.annotations.Document;
+
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Map;
+import java.util.UUID;
 
-
-@org.springframework.data.mongodb.core.mapping.Document(collection = "products") // MongoDB
-@org.springframework.data.elasticsearch.annotations.Document(indexName = "products") // Elasticsearch
+@Entity
+@Table(name = "products")
+@Document(indexName = "products") // Elasticsearch
 public class Product {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    public String getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
-    private String userId;
+    private UUID userId;
     private String name;
     @Column(nullable = true)
     private String description;
-    private Double basePrice;
+    private BigDecimal basePrice;
     private String category;
     private int purchasesCount = 0;
-    @Column(nullable = true)
+
+
+    @Column(columnDefinition = "jsonb",nullable = true)
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> characteristics;
 
     public Map<String, Object> getCharacteristics() {
@@ -52,7 +59,7 @@ public class Product {
         this.purchasesCount += 1;
     }
 
-    public Product(String userId, String name, String description, Double basePrice, String category, Map<String, Object> characteristics) {
+    public Product(UUID userId, String name, String description, BigDecimal basePrice, String category, Map<String, Object> characteristics) {
         this.name = name;
         this.userId = userId;
         this.description = description;
@@ -61,11 +68,14 @@ public class Product {
         this.characteristics = characteristics;
     }
 
-    public String getId() {
+    public Product() {
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -85,11 +95,11 @@ public class Product {
         this.description = description;
     }
 
-    public Double getBasePrice() {
+    public BigDecimal getBasePrice() {
         return basePrice;
     }
 
-    public void setBasePrice(Double basePrice) {
+    public void setBasePrice(BigDecimal basePrice) {
         this.basePrice = basePrice;
     }
 

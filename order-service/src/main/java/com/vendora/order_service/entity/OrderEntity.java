@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Table(name = "orders")
 public class OrderEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
@@ -21,13 +22,12 @@ public class OrderEntity {
     @Column(nullable = false)
     private String status; // pending, completed, cancelled
 
-    @Column(nullable = false)
-    private BigDecimal totalPrice;
-
     private BigDecimal totalDiscount;
     private BigDecimal totalTax;
 
-    @Column(nullable = false)
+    private String shippingAddress;
+    private String region; // EU ...
+
     private BigDecimal finalPrice;
 
     @Column(nullable = false, updatable = false)
@@ -35,17 +35,39 @@ public class OrderEntity {
 
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<OrderItemEntity> items;
+    private List<OrderItemEntity> items = new ArrayList<>();
 
     public List<OrderItemEntity> getItems() {
         return items;
     }
 
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(String shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
+
     public void setItems(List<OrderItemEntity> items) {
         this.items = items;
     }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
 
     public OrderEntity() {
     }
@@ -66,13 +88,6 @@ public class OrderEntity {
         this.status = status;
     }
 
-    public BigDecimal getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(BigDecimal totalPrice) {
-        this.totalPrice = totalPrice;
-    }
 
     public BigDecimal getTotalDiscount() {
         return totalDiscount;

@@ -2,8 +2,11 @@ package com.vendora.order_service.security;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 public class OAuth2FeignRequestInterceptor implements RequestInterceptor {
 
@@ -15,15 +18,37 @@ public class OAuth2FeignRequestInterceptor implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate template) {
+
+        if(template.url().contains("/cart")){
+            String token = getUserJwt();
+            if (token != null){
+                template.header("Authorization", "Bearer " + token);
+            }
+        } else {
+            String token = getClientJwt();
+            if (token != null){
+                template.header("Authorization", "Bearer " + token);
+            }
+        }
+    }
+
+    private String getClientJwt(){
         OAuth2AuthorizeRequest request = OAuth2AuthorizeRequest.withClientRegistrationId("keycloak")
-                .principal("order-service")
+                .principal("price-service")
                 .build();
 
-        String token = manager.authorize(request)
+        return manager.authorize(request)
                 .getAccessToken()
                 .getTokenValue();
-
-        template.header("Authorization", "Bearer " + token);
     }
+
+    private String getUserJwt() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
+            return jwt.getTokenValue();
+        }
+        return null;
+    }
+
 }
 

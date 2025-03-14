@@ -18,13 +18,13 @@ public class DiscountController {
     @Autowired
     private DiscountService discountService;
 
-    @PostMapping("/set")
+    @PostMapping
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DiscountEntity> setDiscount(@RequestBody DiscountDTO discountDTO){
         return ResponseEntity.ok( discountService.setDiscount(discountDTO));
     }
 
-    @PutMapping("/update/{productId}")
+    @PutMapping("/{productId}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DiscountEntity> updatePromo(@PathVariable UUID productId){
         return ResponseEntity.ok(discountService.updateDiscount(productId));

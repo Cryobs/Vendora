@@ -14,10 +14,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping
 public class ProductController {
 
     @Autowired
@@ -31,7 +33,7 @@ public class ProductController {
 
     @DeleteMapping("/{productId}")
     @PreAuthorize("hasRole('vendor')")
-    public ResponseEntity<String> deleteProduct(@PathVariable String productId, @AuthenticationPrincipal Jwt jwt) throws IllegalAccessException {
+    public ResponseEntity<String> deleteProduct(@PathVariable UUID productId, @AuthenticationPrincipal Jwt jwt) throws IllegalAccessException {
         return ResponseEntity.ok(productService.deleteProduct(productId, jwt));
     }
 
@@ -43,12 +45,12 @@ public class ProductController {
 
     @PutMapping("/admin/{productId}/purchasesCount")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Product> addPurchasesCount(@PathVariable String productId){
+    public ResponseEntity<Product> addPurchasesCount(@PathVariable UUID productId){
         return ResponseEntity.ok(productService.addPurchasesCount(productId));
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProduct(@PathVariable String productId){
+    public ResponseEntity<Product> getProduct(@PathVariable UUID productId){
         return ResponseEntity.ok(productService.getProduct(productId));
     }
 

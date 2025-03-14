@@ -2,127 +2,79 @@ package com.vendora.price_service.service;
 
 
 import com.vendora.price_service.DTO.*;
-import com.vendora.price_service.entity.ShippingEntity;
-import com.vendora.price_service.feign.WarehouseClient;
-import com.vendora.price_service.repository.ShippingRepo;
+import com.vendora.price_service.feign.CatalogClient;
 import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PriceService {
 
     @Autowired
-    private ShippingRepo shippingRepo;
-    @Autowired
-    private PromoCodeService promoCodeService;
-    @Autowired
-    private WarehouseClient warehouseClient;
+    private CatalogClient catalogClient;
     @Autowired
     private DiscountService discountService;
     @Autowired
     private TaxService taxService;
 
-    public List<FinalItemsPriceDTO> calculateItemsPrice(OrderDTO request) {
-        ShippingEntity shippingRequest = request.getShipping();
-        String promoCode = request.getPromoCode();
-
-        List<FinalItemsPriceDTO> result = new ArrayList<>();
-        for (OrderItemDTO item : request.getItems()){
-            BigDecimal basePrice;
-            try {
-                basePrice = warehouseClient.getProduct(item.getProductId()).getBody().getBasePrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-            } catch (FeignException.NotFound e) {
-                throw new RuntimeException("Product not found: " + item.getProductId(), e);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to fetch product: " + e.getMessage(), e);
-            }
-
-            // discount
-            BigDecimal discount_value = discountService.calculateDiscount(item.getProductId(), basePrice);
-            //apply discounts
-            BigDecimal finalPrice = basePrice.subtract(discount_value);
-            //tax
-            BigDecimal tax = taxService.calculateTax(finalPrice, request.getRegion());
-            // apply tax
-            finalPrice = finalPrice.add(tax);
-
-            //final price dto create
-            FinalItemsPriceDTO finalPriceDTO = new FinalItemsPriceDTO();
-            finalPriceDTO.setFinalPrice(finalPrice);
-            finalPriceDTO.setBasePrice(basePrice);
-            finalPriceDTO.setProductId(item.getProductId());
-            finalPriceDTO.setQuantity(item.getQuantity());
-            finalPriceDTO.setTotalDiscount(discount_value);
-            finalPriceDTO.setTotalTax(tax);
-
-            result.add(finalPriceDTO);
+    public OrderItemDTO calculateItem(OrderItemDTO item, String region){
+        try {
+            item.setFinalPrice(catalogClient.getProduct(item.getProductId()).getBody().getBasePrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+        } catch (FeignException.NotFound e) {
+            throw new RuntimeException("Product not found: " + item.getProductId(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch product: " + e.getMessage(), e);
         }
-
-        return result;
+        System.out.println("Product getted");
+        //calculate discount
+        item.setTotalDiscount(discountService.calculateDiscount(item.getProductId(), item.getFinalPrice()));
+        item.setFinalPrice(
+                item.getFinalPrice()
+                        .subtract(item.getTotalDiscount())
+        );
+        System.out.println("discount calculated");
+        //calculate tax
+        item.setTotalTax(taxService.calculateTax(item.getFinalPrice(), region));
+        item.setFinalPrice(
+                item.getFinalPrice()
+                        .add(item.getTotalTax())
+        );
+        System.out.println("Tax calculated");
+        return item;
     }
 
+    public OrderDTO calculateOrder(OrderDTO request){
 
+        request.setFinalPrice(BigDecimal.ZERO);
+        request.setTotalTax(BigDecimal.ZERO);
+        request.setTotalDiscount(BigDecimal.ZERO);
 
-    public FinalPriceDTO calculatePrice(OrderDTO request) {
-        ShippingEntity shippingRequest = request.getShipping();
-        String promoCode = request.getPromoCode();
+        List<OrderItemDTO> items = request.getItems();
 
-        FinalPriceDTO result = new FinalPriceDTO();
-        result.setTotalTax(BigDecimal.ZERO);
-        result.setTotalPrice(BigDecimal.ZERO);
-        result.setFinalPrice(BigDecimal.ZERO);
-        result.setTotalDiscount(BigDecimal.ZERO);
-
-        for (OrderItemDTO item : request.getItems()){
-            BigDecimal basePrice;
-            try {
-                basePrice = warehouseClient.getProduct(item.getProductId()).getBody().getBasePrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-            } catch (FeignException.NotFound e) {
-                throw new RuntimeException("Product not found: " + item.getProductId(), e);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to fetch product: " + e.getMessage(), e);
-            }
-
-            // discount
-            BigDecimal discount_value = discountService.calculateDiscount(item.getProductId(), basePrice);
-            //apply discounts
-            BigDecimal finalPrice = basePrice.subtract(discount_value);
-
-            result.setFinalPrice(result.getFinalPrice().add(finalPrice));
-            result.setTotalPrice(result.getTotalPrice().add(basePrice));
-            result.setTotalDiscount(result.getTotalDiscount().add(discount_value));
-
-
+        for (int i = 0; i < items.size(); i++) {
+            OrderItemDTO item = items.get(i);
+            item = calculateItem(item, request.getRegion());
+            //final price
+            request.setFinalPrice(
+                    request.getFinalPrice()
+                            .add(item.getFinalPrice())
+            );
+            //discount
+            request.setTotalDiscount(
+                    request.getTotalDiscount()
+                            .add(item.getTotalDiscount())
+            );
+            //tax
+            request.setTotalTax(
+                    request.getTotalTax()
+                            .add(item.getTotalTax())
+            );
         }
 
-
-
-        //tax
-        BigDecimal tax = taxService.calculateTax(result.getFinalPrice(), request.getRegion());
-        result.setTotalTax(result.getTotalTax().add(tax));
-        //shipping
-        result.setTotalShipping(shippingRepo.findById(shippingRequest.getId()).get().getPrice());
-
-        result.setFinalPrice(result.getFinalPrice().add(tax).add(result.getTotalShipping()));
-        //promo code
-        BigDecimal code = promoCodeService.calculatePromoCode(promoCode, result.getFinalPrice());
-        int compare = code.compareTo(result.getFinalPrice());
-        // if code > finalPrice
-        if (compare == 1){
-            code = result.getFinalPrice();
-        }
-        result.setFinalPrice(result.getFinalPrice().subtract(code));
-
-
-        result.setTotalDiscount(result.getTotalDiscount().add(code));
-
-
-        return result;
+        return request;
     }
 
 

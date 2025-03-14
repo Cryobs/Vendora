@@ -3,7 +3,7 @@ package com.vendora.price_service.service;
 import com.vendora.price_service.DTO.DiscountDTO;
 import com.vendora.price_service.entity.DiscountEntity;
 import com.vendora.price_service.exception.NoDiscountException;
-import com.vendora.price_service.feign.WarehouseClient;
+import com.vendora.price_service.feign.CatalogClient;
 import com.vendora.price_service.repository.DiscountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,14 +17,14 @@ public class DiscountService {
     @Autowired
     private DiscountRepo discountRepo;
     @Autowired
-    private WarehouseClient warehouseClient;
+    private CatalogClient catalogClient;
 
     public DiscountEntity setDiscount(DiscountDTO discountDTO){
         if(discountRepo.findByProductId(discountDTO.getProductId()).isPresent()){
             DiscountEntity discount = discountRepo.findByProductId(discountDTO.getProductId()).get();
             return discountRepo.save(discount);
         } else {
-            DiscountEntity discount = new DiscountEntity(discountDTO, warehouseClient.getProduct(discountDTO.getProductId()).getBody());
+            DiscountEntity discount = new DiscountEntity(discountDTO, catalogClient.getProduct(discountDTO.getProductId()).getBody());
             return discountRepo.save(discount);
         }
     }

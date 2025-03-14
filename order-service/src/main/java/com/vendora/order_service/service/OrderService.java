@@ -1,19 +1,23 @@
 package com.vendora.order_service.service;
 
-import com.vendora.order_service.DTO.FinalItemsPriceDTO;
-import com.vendora.order_service.DTO.FinalPriceDTO;
-import com.vendora.order_service.DTO.OrderDTO;
+import com.vendora.order_service.DTO.*;
 import com.vendora.order_service.entity.OrderEntity;
 import com.vendora.order_service.entity.OrderItemEntity;
 import com.vendora.order_service.exception.OrderUndefinedException;
+import com.vendora.order_service.feign.CartClient;
 import com.vendora.order_service.feign.PriceClient;
 import com.vendora.order_service.feign.WarehouseClient;
+import com.vendora.order_service.mapper.OrderMapper;
+import com.vendora.order_service.repository.OrderItemRepo;
 import com.vendora.order_service.repository.OrderRepo;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.beans.Transient;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,22 +30,20 @@ public class OrderService {
     private PriceClient priceClient;
 
     @Autowired
+    private CartClient cartClient;
+
+    @Autowired
     private OrderRepo orderRepo;
+
+    @Autowired
+    private OrderItemRepo orderItemRepo;
 
     @Autowired
     private WarehouseClient warehouseClient;
 
-    private OrderItemEntity convertToOrderItemEntity(FinalItemsPriceDTO dto, OrderEntity order) {
-        OrderItemEntity itemEntity = new OrderItemEntity();
-        itemEntity.setProductId(dto.getProductId());
-        itemEntity.setQuantity(dto.getQuantity());
-        itemEntity.setBasePrice(dto.getBasePrice());
-        itemEntity.setFinalPrice(dto.getFinalPrice());
-        itemEntity.setTotalDiscount(dto.getTotalDiscount());
-        itemEntity.setTotalTax(dto.getTotalTax());
-        itemEntity.setOrder(order);
-        return itemEntity;
-    }
+    @Autowired
+    private OrderMapper orderMapper;
+
 
     public OrderEntity getOrder(UUID orderId, Jwt jwt) throws OrderUndefinedException {
         return orderRepo.findByIdAndUserId(orderId, jwt.getClaim("sub"))
@@ -65,51 +67,56 @@ public class OrderService {
         return orderRepo.save(order);
     }
 
-    public OrderEntity createOrder(OrderDTO request, @AuthenticationPrincipal Jwt jwt){
+    @Transactional
+    public OrderEntity createOrder(CreateOrderDTO request, @AuthenticationPrincipal Jwt jwt){
 
-        FinalPriceDTO finalPriceDTO = priceClient.calculate(request);
-        System.out.println("Received FinalPriceDTO: " + finalPriceDTO.getFinalPrice()); // Логируем полученные данные
+        System.out.println("Get cart");
+        String token = "Bearer " + jwt.getTokenValue();
+        CartDTO cart = cartClient.getCart(token);
+        System.out.println("getted cart");
 
         OrderEntity order = new OrderEntity();
-        order.setCreatedAt(LocalDateTime.now());
-        order.setStatus("Created");
-
-        //use promo
-        if (request.getPromoCode() != null && !request.getPromoCode().isBlank()) {
-            System.out.println(priceClient.usePromo(request.getPromoCode()));
-        }
-
-
-        //set prices
-        if (finalPriceDTO.getFinalPrice() == null) {
-            throw new IllegalArgumentException("Final price cannot be null");
-        }
-
-        order.setTotalDiscount(finalPriceDTO.getTotalDiscount());
-        order.setTotalPrice(finalPriceDTO.getTotalPrice());
-        order.setTotalTax(finalPriceDTO.getTotalTax());
-        order.setFinalPrice(finalPriceDTO.getFinalPrice());
-        order.setUserId(jwt.getClaim("sub"));
-
-
+        order.setUserId(jwt.getSubject());
+        order.setStatus("pending");
+        order.setRegion(request.getRegion());
+        order.setShippingAddress(request.getShippingAddress());
 
         order = orderRepo.save(order);
 
-        // calculate items
-        List<FinalItemsPriceDTO> itemsPriceDTOs = priceClient.calculateItems(request);
-
-        List<OrderItemEntity> orderItems = new ArrayList<>();
-        for (FinalItemsPriceDTO dto : itemsPriceDTOs) {
-            OrderItemEntity itemEntity = convertToOrderItemEntity(dto, order);
-            //reserve product
-            warehouseClient.reserveProduct(itemEntity.getProductId(), itemEntity.getQuantity());
-            orderItems.add(itemEntity);
+        System.out.println("start calc items");
+        List<OrderItemEntity> items = new ArrayList<>();
+        for (int i = 0; i < cart.getItems().size(); i++) {
+            OrderItemEntity item = new OrderItemEntity(
+                    order,
+                    cart.getItems().get(i).getProductId(),
+                    cart.getItems().get(i).getQuantity(),
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO
+            );
+            items.add(item);
         }
+        orderItemRepo.saveAll(items);
+        System.out.println("end calc items");
+        order.setItems(items);
+        order = orderRepo.save(order);
 
-        order.setItems(orderItems);
+        System.out.println("start calc order");
+        // Получаем обновлённый заказ с рассчитанными ценами
+        OrderDTO updatedOrderDTO = priceClient.calculateOrder(orderMapper.toDTO(order));
 
+        // **Не создаём новый объект, а обновляем старый**
+        order.setFinalPrice(updatedOrderDTO.getFinalPrice());
+        order.setTotalTax(updatedOrderDTO.getTotalTax());
+        order.setTotalDiscount(updatedOrderDTO.getTotalDiscount());
 
-
+        // Обновляем цены у товаров
+        for (int i = 0; i < order.getItems().size(); i++) {
+            order.getItems().get(i).setFinalPrice(updatedOrderDTO.getItems().get(i).getFinalPrice());
+            order.getItems().get(i).setTotalDiscount(updatedOrderDTO.getItems().get(i).getTotalDiscount());
+            order.getItems().get(i).setTotalTax(updatedOrderDTO.getItems().get(i).getTotalTax());
+        }
+        System.out.println("end calc order");
         return orderRepo.save(order);
     }
 

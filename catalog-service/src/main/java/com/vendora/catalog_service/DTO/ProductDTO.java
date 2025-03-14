@@ -1,5 +1,6 @@
 package com.vendora.catalog_service.DTO;
 
+import jakarta.json.Json;
 import jakarta.persistence.Column;
 
 import java.math.BigDecimal;
@@ -13,7 +14,7 @@ public class ProductDTO {
     private String description;
 
     @Column(nullable = false)
-    private Double basePrice;
+    private BigDecimal basePrice;
 
     @Column(nullable = false)
     private String category;
@@ -55,11 +56,11 @@ public class ProductDTO {
         this.description = description;
     }
 
-    public Double getBasePrice() {
+    public BigDecimal getBasePrice() {
         return basePrice;
     }
 
-    public void setBasePrice(Double basePrice) {
+    public void setBasePrice(BigDecimal basePrice) {
         this.basePrice = basePrice;
     }
 

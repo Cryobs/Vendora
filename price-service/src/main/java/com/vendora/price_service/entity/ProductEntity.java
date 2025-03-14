@@ -1,29 +1,72 @@
 package com.vendora.price_service.entity;
 
-
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
 @Table(name = "products")
 public class ProductEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+
+    private UUID userId;
     private String name;
     @Column(nullable = true)
     private String description;
-    @Column(nullable = false)
-    private BigDecimal  basePrice;
+    private BigDecimal basePrice;
+    private String category;
+    private int purchasesCount = 0;
 
-    public ProductEntity(String name, String description, BigDecimal base_price) {
+
+    @Column(columnDefinition = "jsonb",nullable = true)
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> characteristics;
+
+    public Map<String, Object> getCharacteristics() {
+        return characteristics;
+    }
+
+    public void setCharacteristics(Map<String, Object> characteristics) {
+        this.characteristics = characteristics;
+    }
+
+
+    public int getPurchasesCount() {
+        return purchasesCount;
+    }
+
+    public void setPurchasesCount(int purchasesCount) {
+        this.purchasesCount = purchasesCount;
+    }
+
+    public void addPurchasesCount() {
+        this.purchasesCount += 1;
+    }
+
+    public ProductEntity() {
+    }
+
+    public ProductEntity(UUID userId, String name, String description, BigDecimal basePrice, String category, Map<String, Object> characteristics) {
         this.name = name;
+        this.userId = userId;
         this.description = description;
-        this.basePrice = base_price;
+        this.basePrice = basePrice;
+        this.category = category;
+        this.characteristics = characteristics;
     }
 
     public UUID getId() {
@@ -50,14 +93,20 @@ public class ProductEntity {
         this.description = description;
     }
 
-    public BigDecimal  getBasePrice() {
+    public BigDecimal getBasePrice() {
         return basePrice;
     }
 
-    public void setBasePrice(BigDecimal  basePrice) {
+    public void setBasePrice(BigDecimal basePrice) {
         this.basePrice = basePrice;
     }
 
-    public ProductEntity() {
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }
+

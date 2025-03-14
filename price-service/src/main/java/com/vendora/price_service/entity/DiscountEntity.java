@@ -1,6 +1,7 @@
 package com.vendora.price_service.entity;
 
 
+import com.vendora.price_service.entity.ProductEntity;
 import com.vendora.price_service.DTO.DiscountDTO;
 import jakarta.persistence.*;
 

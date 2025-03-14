@@ -9,6 +9,8 @@ public class TaxDTO {
     private String region;
     @Column(nullable = false)
     private String tax_type;
+    @Column(nullable = false)
+    private BigDecimal rate;
 
     public TaxDTO() {
     }
@@ -37,6 +39,4 @@ public class TaxDTO {
         this.region = region;
     }
 
-    @Column(nullable = false)
-    private BigDecimal rate;
 }

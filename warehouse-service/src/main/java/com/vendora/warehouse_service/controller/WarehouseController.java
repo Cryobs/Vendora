@@ -18,7 +18,7 @@ public class WarehouseController {
     @Autowired
     private WarehouseService warehouseService;
 
-    @PutMapping("/updateStock/{productId}")
+    @PutMapping("/stock/{productId}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<InventoryEntity> updateStock(@PathVariable UUID productId, @RequestParam int quantity) throws ProductUnavailableException {
         return ResponseEntity.ok(warehouseService.addStockToProduct(productId, quantity));

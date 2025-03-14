@@ -1,29 +1,25 @@
 package com.vendora.catalog_service.service;
 
 
-import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import com.vendora.catalog_service.DTO.ProductDTO;
 import com.vendora.catalog_service.entity.Product;
 import com.vendora.catalog_service.repository.elasticsearch.ProductSearchRepo;
-import com.vendora.catalog_service.repository.mongo.ProductsRepo;
+import com.vendora.catalog_service.repository.postgres.ProductsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.Query;
-import org.springframework.data.web.PagedModel;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,13 +33,13 @@ public class ProductService {
     private ElasticsearchOperations elasticsearchOperations;
 
     public Product registerProduct(ProductDTO product, Jwt jwt){
-        Product productEntity = new Product(jwt.getSubject(), product.getName(), product.getDescription(), product.getBasePrice(), product.getCategory(), product.getCharacteristics());
+        Product productEntity = new Product(UUID.fromString(jwt.getSubject()), product.getName(), product.getDescription(), product.getBasePrice(), product.getCategory(), product.getCharacteristics());
         Product finalProduct = productsRepo.save(productEntity);
         productSearchRepo.save(productEntity);
         return finalProduct;
     }
 
-    public Product addPurchasesCount(String productId){
+    public Product addPurchasesCount(UUID productId){
         Product productEntity = productsRepo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         productEntity.addPurchasesCount();
@@ -51,7 +47,7 @@ public class ProductService {
         return productsRepo.save(productEntity);
     }
 
-    public String deleteProduct(String productId, Jwt jwt) throws IllegalAccessException {
+    public String deleteProduct(UUID productId, Jwt jwt) throws IllegalAccessException {
         Product productEntity = productsRepo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         if (productEntity.getUserId().equals(jwt.getSubject())){
@@ -69,7 +65,7 @@ public class ProductService {
         return "All products deleted";
     }
 
-    public Product getProduct(String productId){
+    public Product getProduct(UUID productId){
         return productsRepo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }

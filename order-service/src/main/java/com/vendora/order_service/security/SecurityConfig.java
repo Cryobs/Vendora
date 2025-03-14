@@ -1,6 +1,7 @@
 package com.vendora.order_service.security;
 
 
+import com.vendora.order_service.security.JwtAuthConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;

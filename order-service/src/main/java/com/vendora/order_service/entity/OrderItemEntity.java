@@ -1,42 +1,55 @@
 package com.vendora.order_service.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.vendora.order_service.DTO.CartDTO;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_item")
+@Table(name = "order_items")
 public class OrderItemEntity {
+
+
+    @Column(nullable = false)
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "orderId", nullable = false)
     @JsonBackReference
     private OrderEntity order;
-
     @Column(nullable = false)
     private UUID productId;
-
     @Column(nullable = false)
     private int quantity;
+
+    private BigDecimal totalDiscount;
+    private BigDecimal totalTax;
 
     @Column(nullable = false)
     private BigDecimal finalPrice;
 
-    @Column(nullable = false)
-    private BigDecimal basePrice;
 
-    @Column(nullable = false)
-    private BigDecimal totalDiscount;
 
-    @Column(nullable = false)
-    private BigDecimal totalTax;
+    public OrderItemEntity(OrderEntity order, UUID productId, int quantity, BigDecimal totalDiscount, BigDecimal totalTax, BigDecimal finalPrice) {
+        this.order = order;
+        this.productId = productId;
+        this.quantity = quantity;
+        this.totalDiscount = totalDiscount;
+        this.totalTax = totalTax;
+        this.finalPrice = finalPrice;
+    }
 
+    public OrderEntity getOrder() {
+        return order;
+    }
+
+    public void setOrder(OrderEntity order) {
+        this.order = order;
+    }
 
 
     public BigDecimal getTotalDiscount() {
@@ -55,8 +68,17 @@ public class OrderItemEntity {
         this.totalTax = totalTax;
     }
 
+    public BigDecimal getFinalPrice() {
+        return finalPrice;
+    }
+
+    public void setFinalPrice(BigDecimal finalPrice) {
+        this.finalPrice = finalPrice;
+    }
+
     public OrderItemEntity() {
     }
+
 
     public UUID getId() {
         return id;
@@ -66,13 +88,6 @@ public class OrderItemEntity {
         this.id = id;
     }
 
-    public OrderEntity getOrder() {
-        return order;
-    }
-
-    public void setOrder(OrderEntity order) {
-        this.order = order;
-    }
 
     public UUID getProductId() {
         return productId;
@@ -90,19 +105,4 @@ public class OrderItemEntity {
         this.quantity = quantity;
     }
 
-    public BigDecimal getFinalPrice() {
-        return finalPrice;
-    }
-
-    public void setFinalPrice(BigDecimal finalPrice) {
-        this.finalPrice = finalPrice;
-    }
-
-    public BigDecimal getBasePrice() {
-        return basePrice;
-    }
-
-    public void setBasePrice(BigDecimal basePrice) {
-        this.basePrice = basePrice;
-    }
 }

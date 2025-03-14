@@ -1,5 +1,6 @@
 package com.vendora.warehouse_service.entity;
 
+import com.vendora.warehouse_service.entity.ProductEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
