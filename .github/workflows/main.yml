@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '23'
+          distribution: 'oracle'
+
       
       
       - name: Build with Maven
