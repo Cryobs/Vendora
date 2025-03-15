@@ -2,7 +2,7 @@ package com.vendora.catalog_service.service;
 
 
 import com.vendora.catalog_service.DTO.ProductDTO;
-import com.vendora.catalog_service.entity.Product;
+import com.vendora.catalog_service.entity.ProductEntity;
 import com.vendora.catalog_service.repository.elasticsearch.ProductSearchRepo;
 import com.vendora.catalog_service.repository.postgres.ProductsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,6 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,28 +31,28 @@ public class ProductService {
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
 
-    public Product registerProduct(ProductDTO product, Jwt jwt){
-        Product productEntity = new Product(UUID.fromString(jwt.getSubject()), product.getName(), product.getDescription(), product.getBasePrice(), product.getCategory(), product.getCharacteristics());
-        Product finalProduct = productsRepo.save(productEntity);
+    public ProductEntity registerProduct(ProductDTO product, Jwt jwt){
+        ProductEntity productEntity = new ProductEntity(UUID.fromString(jwt.getSubject()), product.getName(), product.getDescription(), product.getBasePrice(), product.getCategory(), product.getCharacteristics());
+        ProductEntity finalProduct = productsRepo.save(productEntity);
         productSearchRepo.save(productEntity);
         return finalProduct;
     }
 
-    public Product addPurchasesCount(UUID productId){
-        Product productEntity = productsRepo.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+    public ProductEntity addPurchasesCount(UUID productId){
+        ProductEntity productEntity = productsRepo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("ProductEntity not found"));
         productEntity.addPurchasesCount();
         productSearchRepo.save(productEntity);
         return productsRepo.save(productEntity);
     }
 
     public String deleteProduct(UUID productId, Jwt jwt) throws IllegalAccessException {
-        Product productEntity = productsRepo.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        ProductEntity productEntity = productsRepo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("ProductEntity not found"));
         if (productEntity.getUserId().equals(jwt.getSubject())){
             productsRepo.delete(productEntity);
             productSearchRepo.delete(productEntity);
-            return "Product deleted";
+            return "ProductEntity deleted";
         } else {
             throw new IllegalAccessException("Unauthorized");
         }
@@ -65,12 +64,12 @@ public class ProductService {
         return "All products deleted";
     }
 
-    public Product getProduct(UUID productId){
+    public ProductEntity getProduct(UUID productId){
         return productsRepo.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new RuntimeException("ProductEntity not found"));
     }
 
-    public List<Product> search(
+    public List<ProductEntity> search(
             String keyword,
             int page,
             int psize,
@@ -128,14 +127,14 @@ public class ProductService {
 
         NativeQuery nativeQuery = nativeQueryBuilder.withPageable(pageable).build();
 
-        SearchHits<Product> searchHits = elasticsearchOperations.search(nativeQuery, Product.class);
+        SearchHits<ProductEntity> searchHits = elasticsearchOperations.search(nativeQuery, ProductEntity.class);
         return searchHits.stream()
                 .map(SearchHit::getContent)
                 .collect(Collectors.toList());
     }
 
 
-    public Iterable<Product> productListAll(){
+    public Iterable<ProductEntity> productListAll(){
         return productsRepo.findAll();
     }
 }

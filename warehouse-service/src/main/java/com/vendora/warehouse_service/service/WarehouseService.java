@@ -8,6 +8,7 @@ import com.vendora.warehouse_service.exception.ProductUndefinedException;
 import com.vendora.warehouse_service.feign.CatalogClient;
 import com.vendora.warehouse_service.repository.InventoryMovementRepo;
 import com.vendora.warehouse_service.repository.InventoryRepo;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,7 @@ public class WarehouseService {
         return reverseIterable(inventoryMovementRepo.findAll());
     }
 
+    @Transactional
     public InventoryEntity reserveProduct(UUID productId, int quantity) throws ProductUndefinedException, ProductUnavailableException {
         InventoryEntity productInventory = inventoryRepo.findByProductId(productId)
                 .orElseThrow(() -> new ProductUndefinedException("Undefined product id"));
@@ -48,6 +50,8 @@ public class WarehouseService {
             productInventory.setQuantity(productInventory.getQuantity() - quantity);
             productInventory.setReservedQuantity(productInventory.getReservedQuantity() + quantity);
             productInventory.setLastUpdated(LocalDateTime.now());
+
+            inventoryRepo.save(productInventory);
 
             moveInventory(productId, "reserve", quantity);
 

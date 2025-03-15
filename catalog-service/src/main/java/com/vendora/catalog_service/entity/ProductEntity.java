@@ -12,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "products")
 @Document(indexName = "products") // Elasticsearch
-public class Product {
+public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -59,7 +59,7 @@ public class Product {
         this.purchasesCount += 1;
     }
 
-    public Product(UUID userId, String name, String description, BigDecimal basePrice, String category, Map<String, Object> characteristics) {
+    public ProductEntity(UUID userId, String name, String description, BigDecimal basePrice, String category, Map<String, Object> characteristics) {
         this.name = name;
         this.userId = userId;
         this.description = description;
@@ -68,7 +68,7 @@ public class Product {
         this.characteristics = characteristics;
     }
 
-    public Product() {
+    public ProductEntity() {
     }
 
     public UUID getId() {

@@ -1,20 +1,15 @@
 package com.vendora.catalog_service.controller;
 
 import com.vendora.catalog_service.DTO.ProductDTO;
-import com.vendora.catalog_service.entity.Product;
+import com.vendora.catalog_service.entity.ProductEntity;
 import com.vendora.catalog_service.service.ProductService;
-import jakarta.ws.rs.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,7 +22,7 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasRole('vendor')")
-    public ResponseEntity<Product> registerProduct(@RequestBody ProductDTO productDTO, @AuthenticationPrincipal Jwt jwt){
+    public ResponseEntity<ProductEntity> registerProduct(@RequestBody ProductDTO productDTO, @AuthenticationPrincipal Jwt jwt){
         return ResponseEntity.ok(productService.registerProduct(productDTO, jwt));
     }
 
@@ -45,17 +40,17 @@ public class ProductController {
 
     @PutMapping("/admin/{productId}/purchasesCount")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Product> addPurchasesCount(@PathVariable UUID productId){
+    public ResponseEntity<ProductEntity> addPurchasesCount(@PathVariable UUID productId){
         return ResponseEntity.ok(productService.addPurchasesCount(productId));
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProduct(@PathVariable UUID productId){
+    public ResponseEntity<ProductEntity> getProduct(@PathVariable UUID productId){
         return ResponseEntity.ok(productService.getProduct(productId));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Product>> search(
+    public ResponseEntity<List<ProductEntity>> search(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Double minPrice,

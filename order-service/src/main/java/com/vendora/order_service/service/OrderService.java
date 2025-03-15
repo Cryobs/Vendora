@@ -67,13 +67,11 @@ public class OrderService {
         return orderRepo.save(order);
     }
 
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     public OrderEntity createOrder(CreateOrderDTO request, @AuthenticationPrincipal Jwt jwt){
 
-        System.out.println("Get cart");
         String token = "Bearer " + jwt.getTokenValue();
         CartDTO cart = cartClient.getCart(token);
-        System.out.println("getted cart");
 
         OrderEntity order = new OrderEntity();
         order.setUserId(jwt.getSubject());
@@ -83,13 +81,15 @@ public class OrderService {
 
         order = orderRepo.save(order);
 
-        System.out.println("start calc items");
         List<OrderItemEntity> items = new ArrayList<>();
         for (int i = 0; i < cart.getItems().size(); i++) {
+            UUID productId = cart.getItems().get(i).getProductId();
+            int quantity = cart.getItems().get(i).getQuantity();
+            warehouseClient.reserveProduct(productId, quantity);
             OrderItemEntity item = new OrderItemEntity(
                     order,
-                    cart.getItems().get(i).getProductId(),
-                    cart.getItems().get(i).getQuantity(),
+                    productId,
+                    quantity,
                     BigDecimal.ZERO,
                     BigDecimal.ZERO,
                     BigDecimal.ZERO
@@ -97,26 +97,24 @@ public class OrderService {
             items.add(item);
         }
         orderItemRepo.saveAll(items);
-        System.out.println("end calc items");
         order.setItems(items);
         order = orderRepo.save(order);
-
-        System.out.println("start calc order");
-        // Получаем обновлённый заказ с рассчитанными ценами
+        // get order with prices
         OrderDTO updatedOrderDTO = priceClient.calculateOrder(orderMapper.toDTO(order));
 
-        // **Не создаём новый объект, а обновляем старый**
         order.setFinalPrice(updatedOrderDTO.getFinalPrice());
         order.setTotalTax(updatedOrderDTO.getTotalTax());
         order.setTotalDiscount(updatedOrderDTO.getTotalDiscount());
 
-        // Обновляем цены у товаров
+        // Update items prices
         for (int i = 0; i < order.getItems().size(); i++) {
             order.getItems().get(i).setFinalPrice(updatedOrderDTO.getItems().get(i).getFinalPrice());
             order.getItems().get(i).setTotalDiscount(updatedOrderDTO.getItems().get(i).getTotalDiscount());
             order.getItems().get(i).setTotalTax(updatedOrderDTO.getItems().get(i).getTotalTax());
         }
-        System.out.println("end calc order");
+
+        cartClient.deleteCart(token);
+
         return orderRepo.save(order);
     }
 

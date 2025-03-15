@@ -6,6 +6,7 @@ import com.vendora.cart_service.entity.Cart;
 import com.vendora.cart_service.entity.CartItem;
 import com.vendora.cart_service.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,9 +38,16 @@ public class CartController {
         return cartService.getCart(UUID.fromString(jwt.getSubject()));
     }
 
+    @DeleteMapping
+    @PreAuthorize("hasRole('user')")
+    public ResponseEntity<String> deleteCart(@AuthenticationPrincipal Jwt jwt){
+        cartService.deleteCart(UUID.fromString(jwt.getSubject()));
+        return ResponseEntity.ok().body("Cart Deleted");
+    }
+
     @DeleteMapping("/{productId}")
     @PreAuthorize("hasRole('user')")
-    public ResponseEntity<String> getCart(@PathVariable UUID productId, @AuthenticationPrincipal Jwt jwt){
+    public ResponseEntity<String> getCartProduct(@PathVariable UUID productId, @AuthenticationPrincipal Jwt jwt){
         cartService.deleteItem(productId, UUID.fromString(jwt.getSubject()));
         return ResponseEntity.ok("Product deleted");
     }

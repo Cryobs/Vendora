@@ -31,6 +31,8 @@ public class WarehouseController {
     }
 
 
+
+
     @PutMapping("/reserve/{productId}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<InventoryEntity> reserveProduct(@PathVariable UUID productId, @RequestParam int quantity) throws ProductUnavailableException, ProductUndefinedException {

@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 public interface CartClient {
     @GetMapping
     CartDTO getCart(@RequestHeader("Authorization") String token);
+
+    @DeleteMapping
+    String deleteCart(@RequestHeader("Authorization") String token);
 }
 
 

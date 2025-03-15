@@ -43,6 +43,11 @@ public class CartService {
                 .orElseGet(() -> cartRepo.save(new Cart(userId)));
     }
 
+    public void deleteCart(UUID userId) {
+        cartRepo.delete(getCart(userId));
+    }
+
+
     public void deleteItem(UUID productId, UUID userId) {
         Cart cart = getCart(userId);
         Optional<CartItem> optionalItem = cart.getItems().stream()
