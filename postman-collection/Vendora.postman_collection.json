@@ -360,8 +360,48 @@
 				{
 					"name": "Movement List",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/warehouse/movement/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"warehouse",
+								"movement",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Inventory",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/warehouse/movement/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"warehouse",
+								"movement",
+								"list"
+							]
+						}
 					},
 					"response": []
 				},

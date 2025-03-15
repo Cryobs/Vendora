@@ -4,8 +4,11 @@ import com.vendora.warehouse_service.entity.InventoryEntity;
 import com.vendora.warehouse_service.entity.InventoryMovementEntity;
 import com.vendora.warehouse_service.exception.ProductUnavailableException;
 import com.vendora.warehouse_service.exception.ProductUndefinedException;
+import com.vendora.warehouse_service.repository.InventoryRepo;
 import com.vendora.warehouse_service.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +20,9 @@ public class WarehouseController {
 
     @Autowired
     private WarehouseService warehouseService;
+
+    @Autowired
+    private InventoryRepo inventoryRepo;
 
     @PutMapping("/stock/{productId}")
     @PreAuthorize("hasRole('admin')")
@@ -30,7 +36,11 @@ public class WarehouseController {
         return ResponseEntity.ok(warehouseService.getInventoryMovementList());
     }
 
-
+    @GetMapping
+    @PreAuthorize("hasRole('admin')")
+    public Page<InventoryEntity> getInventoryList(Pageable pageable){
+        return inventoryRepo.findAll(pageable);
+    }
 
 
     @PutMapping("/reserve/{productId}")
