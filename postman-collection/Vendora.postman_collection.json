@@ -1,0 +1,1183 @@
+{
+	"info": {
+		"_postman_id": "010fde87-58f1-4dd8-9cc2-cf8b446d39c6",
+		"name": "Vendora",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37627030"
+	},
+	"item": [
+		{
+			"name": "order-service",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/order/test",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"order",
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"shippingAddress\": \"Test st.\",\r\n  \"promoCode\": \"\",\r\n  \"region\": \"EU\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/order/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"order",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update order status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"shippingAddress\": \"Test st.\",\r\n  \"promoCode\": \"\",\r\n  \"region\": \"EU\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/order/status/bd45504d-6ee4-4ad6-a622-a5d5cb74c532?status=pending",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"order",
+								"status",
+								"bd45504d-6ee4-4ad6-a622-a5d5cb74c532"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "pending"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJuZDMxaUVMSjZHSVJONjRYanFoa2EwM0IyYUZ5OHpuNV9UTkxaSmhqNDNRIn0.eyJleHAiOjE3Mzg2NzM2MDMsImlhdCI6MTczODY3MzMwMywianRpIjoiZTAwOTRjZjYtYzk0Yi00ZTMzLWJmNDgtMmE0Y2FiMjU5MDNiIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDkwL3JlYWxtcy9WZW5kb3JhIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6Ijc3OTU5OWI5LTJjYmUtNDJiYi1iOTFhLWY3YTE1Mjg2NTNjZSIsInR5cCI6IkJlYXJlciIsImF6cCI6InZlbmRvcmEtcmVzdC1hcGkiLCJzaWQiOiI0MWEwZDY2Yi02MGY5LTRmZjgtYjAwZS03M2JiMDJmZTg4MzciLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwiZGVmYXVsdC1yb2xlcy12ZW5kb3JhIiwidW1hX2F1dGhvcml6YXRpb24iLCJ1c2VyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsidmVuZG9yYS1yZXN0LWFwaSI6eyJyb2xlcyI6WyJjbGllbnRfdXNlciJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJuYW1lIjoiSmFrdWIgSmFrdWJvd2ljeiIsInByZWZlcnJlZF91c2VybmFtZSI6ImphY2tzb24iLCJnaXZlbl9uYW1lIjoiSmFrdWIiLCJmYW1pbHlfbmFtZSI6Ikpha3Vib3dpY3oiLCJlbWFpbCI6ImphY2tAZXhhbXBsZS5jb20ifQ.ocMQUJg-3W9WXoRcGER40gz-SXElsjfRQ1efBF3xKpYENUhIHXdoRqMXF2iIgDJZ74uUgTCDyfu97vRp3okh2BcCfjk-O9tlOtYd_vNK6c471eGabVsuVV8_KRIAu8S1fqAtv4UWl0bhVF0fmDBZ0mI5JlbenHNkgB1u6jRCHdfnClr1m3mVH9Wepyxc4Oh2dYw6MSm9EHz8j61wulIG9zPR3SwuoG7pLCZdRLZqYRCNaRjJ36HYOdm2473VJvxRAUnPnp8ki4QfKPyQybHb_Q6vzyi2kmf2Aok34Be35MBMuBUWWcPxhI0-5N05CuDe4nXeCoVHjAFBM7kTXu4I6Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/order/29868ae6-4b35-4f26-8b8a-b03a960dfbdb",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"order",
+								"29868ae6-4b35-4f26-8b8a-b03a960dfbdb"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get List Of My Orders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJuZDMxaUVMSjZHSVJONjRYanFoa2EwM0IyYUZ5OHpuNV9UTkxaSmhqNDNRIn0.eyJleHAiOjE3Mzg2NzM2MDMsImlhdCI6MTczODY3MzMwMywianRpIjoiZTAwOTRjZjYtYzk0Yi00ZTMzLWJmNDgtMmE0Y2FiMjU5MDNiIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDkwL3JlYWxtcy9WZW5kb3JhIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6Ijc3OTU5OWI5LTJjYmUtNDJiYi1iOTFhLWY3YTE1Mjg2NTNjZSIsInR5cCI6IkJlYXJlciIsImF6cCI6InZlbmRvcmEtcmVzdC1hcGkiLCJzaWQiOiI0MWEwZDY2Yi02MGY5LTRmZjgtYjAwZS03M2JiMDJmZTg4MzciLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwiZGVmYXVsdC1yb2xlcy12ZW5kb3JhIiwidW1hX2F1dGhvcml6YXRpb24iLCJ1c2VyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsidmVuZG9yYS1yZXN0LWFwaSI6eyJyb2xlcyI6WyJjbGllbnRfdXNlciJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJuYW1lIjoiSmFrdWIgSmFrdWJvd2ljeiIsInByZWZlcnJlZF91c2VybmFtZSI6ImphY2tzb24iLCJnaXZlbl9uYW1lIjoiSmFrdWIiLCJmYW1pbHlfbmFtZSI6Ikpha3Vib3dpY3oiLCJlbWFpbCI6ImphY2tAZXhhbXBsZS5jb20ifQ.ocMQUJg-3W9WXoRcGER40gz-SXElsjfRQ1efBF3xKpYENUhIHXdoRqMXF2iIgDJZ74uUgTCDyfu97vRp3okh2BcCfjk-O9tlOtYd_vNK6c471eGabVsuVV8_KRIAu8S1fqAtv4UWl0bhVF0fmDBZ0mI5JlbenHNkgB1u6jRCHdfnClr1m3mVH9Wepyxc4Oh2dYw6MSm9EHz8j61wulIG9zPR3SwuoG7pLCZdRLZqYRCNaRjJ36HYOdm2473VJvxRAUnPnp8ki4QfKPyQybHb_Q6vzyi2kmf2Aok34Be35MBMuBUWWcPxhI0-5N05CuDe4nXeCoVHjAFBM7kTXu4I6Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/order/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"order",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get List Of All Orders (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJuZDMxaUVMSjZHSVJONjRYanFoa2EwM0IyYUZ5OHpuNV9UTkxaSmhqNDNRIn0.eyJleHAiOjE3Mzg2NzM2MDMsImlhdCI6MTczODY3MzMwMywianRpIjoiZTAwOTRjZjYtYzk0Yi00ZTMzLWJmNDgtMmE0Y2FiMjU5MDNiIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDkwL3JlYWxtcy9WZW5kb3JhIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6Ijc3OTU5OWI5LTJjYmUtNDJiYi1iOTFhLWY3YTE1Mjg2NTNjZSIsInR5cCI6IkJlYXJlciIsImF6cCI6InZlbmRvcmEtcmVzdC1hcGkiLCJzaWQiOiI0MWEwZDY2Yi02MGY5LTRmZjgtYjAwZS03M2JiMDJmZTg4MzciLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwiZGVmYXVsdC1yb2xlcy12ZW5kb3JhIiwidW1hX2F1dGhvcml6YXRpb24iLCJ1c2VyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsidmVuZG9yYS1yZXN0LWFwaSI6eyJyb2xlcyI6WyJjbGllbnRfdXNlciJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJuYW1lIjoiSmFrdWIgSmFrdWJvd2ljeiIsInByZWZlcnJlZF91c2VybmFtZSI6ImphY2tzb24iLCJnaXZlbl9uYW1lIjoiSmFrdWIiLCJmYW1pbHlfbmFtZSI6Ikpha3Vib3dpY3oiLCJlbWFpbCI6ImphY2tAZXhhbXBsZS5jb20ifQ.ocMQUJg-3W9WXoRcGER40gz-SXElsjfRQ1efBF3xKpYENUhIHXdoRqMXF2iIgDJZ74uUgTCDyfu97vRp3okh2BcCfjk-O9tlOtYd_vNK6c471eGabVsuVV8_KRIAu8S1fqAtv4UWl0bhVF0fmDBZ0mI5JlbenHNkgB1u6jRCHdfnClr1m3mVH9Wepyxc4Oh2dYw6MSm9EHz8j61wulIG9zPR3SwuoG7pLCZdRLZqYRCNaRjJ36HYOdm2473VJvxRAUnPnp8ki4QfKPyQybHb_Q6vzyi2kmf2Aok34Be35MBMuBUWWcPxhI0-5N05CuDe4nXeCoVHjAFBM7kTXu4I6Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/order/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"order",
+								"list"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Keycloak",
+			"item": [
+				{
+					"name": "Token (login)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "vendora-rest-api",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "vendora",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "vendora",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8090/realms/Vendora/protocol/openid-connect/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"realms",
+								"Vendora",
+								"protocol",
+								"openid-connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Token (login) Gateway",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "vendora-rest-api",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "vendora",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "vendora",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/auth/realms/Vendora/protocol/openid-connect/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"realms",
+								"Vendora",
+								"protocol",
+								"openid-connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Gateway",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "vendora-rest-api",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "vendora",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "vendora",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/auth",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "warehouse-service",
+			"item": [
+				{
+					"name": "Movement List",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Update Srock of Product",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user-service",
+			"item": [
+				{
+					"name": "Login (Get JWT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"access_token\", pm.response.json().access_token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"vendora\",\r\n    \"password\": \"vendora\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Login (Get JWT)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"vendora\",\r\n    \"password\": \"vendora\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/user/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"login"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"access_token\", pm.response.json().access_token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"test\",\r\n    \"password\": \"ZAQ!2wsx\",\r\n    \"email\": \"test@example.com\",\r\n    \"firstName\": \"test\",\r\n    \"lastName\": \"test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By Username",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change User Data",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"NEWTEST@example.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assigned Roles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    \"test\"\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/admin/test/roles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"admin",
+								"test",
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Roles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    \"test\"\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/admin/test/roles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"admin",
+								"test",
+								"roles"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "catalog-service",
+			"item": [
+				{
+					"name": "Register Product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Super Mega Gaming Laptop\",\r\n    \"description\": \"A very gaming laptop\",\r\n    \"basePrice\": 4000,\r\n    \"category\": \"electronics\",\r\n    \"characteristics\": {\r\n        \"CPU\": \"ABC Razor 8 8800\",\r\n        \"GPU\": \"NoVideo XTX 9090m\",\r\n        \"RAM\": \"100 Gb\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/catalog/product",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"catalog",
+								"product"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Register Product",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Super Mega Gaming Laptop\",\r\n    \"description\": \"A very gaming laptop\",\r\n    \"basePrice\": 4000,\r\n    \"category\": \"electronics\",\r\n    \"characteristics\": {\r\n        \"CPU\": \"ABC Razor 8 8800\",\r\n        \"GPU\": \"NoVideo XTX 9090m\",\r\n        \"RAM\": \"100 Gb\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/catalog/product",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"catalog",
+										"product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/catalog/product/67a5df902986df46fbfbea0d",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"catalog",
+								"product",
+								"67a5df902986df46fbfbea0d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete All Products",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/catalog/product/67a5df902986df46fbfbea0d",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"catalog",
+								"product",
+								"67a5df902986df46fbfbea0d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product By ID",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/catalog/product/67a5d9ec6ab69b7fc6f413d4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"catalog",
+								"product",
+								"67a5d9ec6ab69b7fc6f413d4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add PurchasesCount",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/catalog/product/admin/67a5d9ec6ab69b7fc6f413d4/purchasesCount",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"catalog",
+								"product",
+								"admin",
+								"67a5d9ec6ab69b7fc6f413d4",
+								"purchasesCount"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by name",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/catalog/product/search?q=laptop&sort=basePrice_desc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"catalog",
+								"product",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "laptop"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "psize",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "sort",
+									"value": "basePrice_desc"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "cart-service",
+			"item": [
+				{
+					"name": "Get Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add item to Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete item in Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart/c75e5afc-43a4-4a0f-ae4f-31dae19b9650",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart",
+								"c75e5afc-43a4-4a0f-ae4f-31dae19b9650"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Item in Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": \"c75e5afc-43a4-4a0f-ae4f-31dae19b9650\",\n    \"quantity\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/cart",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "price-service",
+			"item": [
+				{
+					"name": "Create Shipping",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"zone\": \"Regional\",\n    \"weightLimit\": 5,\n    \"price\": 3,\n    \"deliveryType\": \"Standart\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/price/shipping",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"price",
+								"shipping"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Tax",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"zone\": \"Regional\",\n    \"weightLimit\": 5,\n    \"price\": 3,\n    \"deliveryType\": \"Standart\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/price/shipping",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"price",
+								"shipping"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get shipping",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI0Y1pDOTQ4cEVsN3haV09fX2dtUmhhUDF3Wi1aMWFwelY3cHZYaEhDM3hnIn0.eyJleHAiOjE3Mzk3ODQzODMsImlhdCI6MTczOTc4NDA4MywianRpIjoiMjAwMmM5OTYtMmVmYS00OTQ3LWJlZGUtN2E1NzkwMjllZGQ0IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDkwL3JlYWxtcy9WZW5kb3JhIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6IjkzZWE4YmFiLWRiZTUtNDcxYy1hNTc3LTc0YTFjNDk3NTFkYiIsInR5cCI6IkJlYXJlciIsImF6cCI6InZlbmRvcmEtcmVzdC1hcGkiLCJzaWQiOiJlMjk3ZGVmYy0wYmZhLTRkMGQtOTJkNy0yODAwMDJiZTRjNTIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbInRlc3QiLCJ2ZW5kb3IiLCJvZmZsaW5lX2FjY2VzcyIsImRlZmF1bHQtcm9sZXMtdmVuZG9yYSIsImFkbWluIiwidW1hX2F1dGhvcml6YXRpb24iLCJ1c2VyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsidmVuZG9yYS1yZXN0LWFwaSI6eyJyb2xlcyI6WyJjbGllbnRfdXNlciIsImNsaWVudF9hZG1pbiJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJuYW1lIjoiVmVuZG9yIFZlbmRvcm92aWNoIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidmVuZG9yYSIsImdpdmVuX25hbWUiOiJWZW5kb3IiLCJmYW1pbHlfbmFtZSI6IlZlbmRvcm92aWNoIiwiZW1haWwiOiJ2ZW5kb3JhQGV4YW1wbGUuY29tIn0.AU-1q1H5AYf_pM_B4wtjq8SXCNuRuKV0URdRlF4gdrX_U0udUrupORAfMa2LMh6MQLnmcEQDbpYITcajHZ5fW922mF9UZhI40qfhMugS5hgXE_8uxwlBzduRVYU7psCwLT9IJinVvtHohxkloM1D4fhXLrbqeOwBrbr37Rhk1H0mCvyEYC4kw7oxh2JsHhnF8ZmhdB9L7gnu2Ir7SkmizPpx-hXKTKy7yhjSBjvd8LaPFGZLPjZb-H2wnMzb0L307k4U9gpFdEedOU5UXRWGfauTDuiDu2wE8oab1Eko5ftyn13IBc508_tIVFaTaH7C6yPL6_kXjH_n-Zs7oX5Idw"
+		}
+	]
+}
