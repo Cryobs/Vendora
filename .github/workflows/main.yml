@@ -11,6 +11,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java: [ 23 ]
     
     steps:
       - name: Checkout code
@@ -20,7 +24,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '23'
-          distribution: 'OpenJDK'
+          distribution: 'zulu'
 
       
       
