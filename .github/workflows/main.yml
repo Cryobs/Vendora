@@ -33,6 +33,10 @@ jobs:
         run: |
           sudo apt-get install -y docker-compose
 
+      - name: Build keycloak docker image
+        run: |
+          docker build -t keycloak-custom -f keycloak-config/Dockerfile.keycloak .
+
       - name: Build and start services
         run: |
           docker-compose -f docker-compose.yml up -d postgres es01 kibana keycloak
