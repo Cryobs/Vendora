@@ -26,10 +26,69 @@ jobs:
           java-version: '23'
           distribution: 'zulu'
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get install -y docker-compose
+
+      - name: Build and start services
+        run: |
+          docker-compose -f docker-compose.yml up -d postgres es01 kibana keycloak
       
-      
-      - name: Build with Maven
-        run: mvn clean install
-      
-      - name: Run tests
-        run: mvn test
+
+      - name: Build api-gateway
+        run: mvn -f api-gateway/pom.xml clean install
+
+      - name: Build eureka-server
+        run: mvn -f eureka-server/pom.xml clean install
+
+      - name: Build cart-service
+        run: mvn -f cart-service/pom.xml clean install
+
+      - name: Build catalog-service
+        run: mvn -f catalog-service/pom.xml clean install
+
+      - name: Build order-service
+        run: mvn -f order-service/pom.xml clean install
+
+      - name: Build price-service
+        run: mvn -f price-service/pom.xml clean install
+
+      - name: Build user-service
+        run: mvn -f user-service/pom.xml clean install
+
+      - name: Build warehouse-service
+        run: mvn -f warehouse-service/pom.xml clean install
+
+
+
+      - name: Tests for api-gateway
+        run: mvn -f api-gateway/pom.xml test
+
+      - name: Tests for eureka-server
+        run: mvn -f eureka-server/pom.xml test
+
+      - name: Tests for cart-service
+        run: mvn -f cart-service/pom.xml test
+
+      - name: Tests for catalog-service
+        run: mvn -f catalog-service/pom.xml test
+
+      - name: Tests for order-service
+        run: mvn -f order-service/pom.xml test
+
+      - name: Tests for price-service
+        run: mvn -f price-service/pom.xml test
+
+      - name: Tests for user-service
+        run: mvn -f user-service/pom.xml test
+
+      - name: Tests for warehouse-service
+        run: mvn -f warehouse-service/pom.xml test
+
+
+
+      - name: Tear down the environment
+        run: docker-compose down
