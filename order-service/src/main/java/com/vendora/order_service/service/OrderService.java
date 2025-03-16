@@ -44,6 +44,9 @@ public class OrderService {
     @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
+
 
     public OrderEntity getOrder(UUID orderId, Jwt jwt) throws OrderUndefinedException {
         return orderRepo.findByIdAndUserId(orderId, jwt.getClaim("sub"))
@@ -64,7 +67,10 @@ public class OrderService {
         OrderEntity order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new OrderUndefinedException("Order with id " + orderId + " is undefined"));
         order.setStatus(status);
-        return orderRepo.save(order);
+
+        order = orderRepo.save(order);
+        kafkaProducerService.sendOrder(order);
+        return order;
     }
 
     @Transactional(rollbackOn = Exception.class)
@@ -115,7 +121,10 @@ public class OrderService {
 
         cartClient.deleteCart(token);
 
-        return orderRepo.save(order);
+        order = orderRepo.save(order);
+        kafkaProducerService.sendOrder(order);
+
+        return order;
     }
 
     public List<OrderEntity> getListOrderByStatus(String status) throws OrderUndefinedException {

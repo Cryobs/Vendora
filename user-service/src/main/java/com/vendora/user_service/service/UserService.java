@@ -60,6 +60,10 @@ public class UserService {
         return keycloak.realm(realm).users().searchByUsername(username, true).getFirst();
     }
 
+    public UserRepresentation getUserById(String userId){
+        return keycloak.realm(realm).users().get(userId).toRepresentation();
+    }
+
     public AccessTokenResponse login(LoginDTO user){
         Keycloak loginKeycloak = KeycloakBuilder.builder()
                 .grantType("password")

@@ -34,7 +34,7 @@ public class OAuth2FeignRequestInterceptor implements RequestInterceptor {
 
     private String getClientJwt(){
         OAuth2AuthorizeRequest request = OAuth2AuthorizeRequest.withClientRegistrationId("keycloak")
-                .principal("price-service")
+                .principal("order-service")
                 .build();
 
         return manager.authorize(request)

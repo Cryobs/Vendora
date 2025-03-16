@@ -40,6 +40,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByUsername(username));
     }
 
+    @GetMapping("/id/{userId}")
+    public ResponseEntity<UserRepresentation> getUserById(@PathVariable String userId){
+        return ResponseEntity.ok(userService.getUserById(userId));
+    }
+
     @PutMapping("/password")
     @PreAuthorize("hasRole('user')")
     public ResponseEntity<Map<String, Object>> changePassword(@AuthenticationPrincipal Jwt jwt, @RequestBody ChangePasswordDTO changePasswordDTO){

@@ -7,6 +7,9 @@ import com.vendora.cart_service.repository.CartItemRepo;
 import com.vendora.cart_service.repository.CartRepo;
 import jakarta.persistence.Access;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -59,6 +62,7 @@ public class CartService {
             cartRepo.save(cart);
         });
     }
+
 
     public Cart updateItem(CartItemDTO cartItemDTO, UUID userId) {
         Cart cart = getCart(userId);
