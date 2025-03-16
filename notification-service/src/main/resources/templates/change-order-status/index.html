@@ -6,8 +6,9 @@
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
 <div style="max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 4px;">
-    <h1 style="color: #333;">Здравствуйте, <span th:text="${username}">User</span>!</h1>
-    <p>Статус вашего заказа изменился на: <strong th:text="${status}">Status</strong></p>
+    <h1 style="text-align: center;">VENDORA</h1>
+    <h2 style="color: #333;">Hello, <span th:text="${username}">User</span>!</h2>
+    <p>Status of your order <a th:href="@{'http://localhost:8080/order/' + ${orderId}}" th:text="${orderId}">OrderId</a> has changed to: <strong th:text="${status}">Status</strong></p>
 </div>
 </body>
 </html>

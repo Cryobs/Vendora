@@ -81,7 +81,7 @@ public class OrderService {
 
         OrderEntity order = new OrderEntity();
         order.setUserId(jwt.getSubject());
-        order.setStatus("pending");
+        order.setStatus("created");
         order.setRegion(request.getRegion());
         order.setShippingAddress(request.getShippingAddress());
 

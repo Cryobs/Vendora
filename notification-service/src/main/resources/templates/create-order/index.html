@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Status</title>
+</head>
+<body style="
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+">
+<main style="
+        max-width: 600px;
+        margin: auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 4px;
+">
+    <h1 style="text-align: center;">VENDORA</h1>
+    <h2 class="greetings" style="color: #333;">Hello, <span th:text="${username}">User</span>!</h2>
+    <p class="order-info">Your order <a th:href="@{'http://localhost:8080/order/' + ${orderId}}" th:text="${orderId}">OrderId</a> successful created</p>
+    <h2>Items</h2>
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+        </tr>
+        <tr th:each="item : ${items}">
+            <td><a th:href="@{'http://localhost:8080/catalog/' + ${item.productId}}" th:text="${item.productId}">Product Id</a></td>
+            <td th:text="${item.finalPrice}"></td>
+        </tr>
+    </table>
+    <h2>Cost: <span th:text="${finalPrice}">Final Price</span></h2>
+</main>
+</body>
+</html>

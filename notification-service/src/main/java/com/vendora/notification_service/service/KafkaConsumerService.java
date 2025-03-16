@@ -40,12 +40,26 @@ public class KafkaConsumerService {
             UserRepresentation user = userResponse.getBody();
             String userEmail = user.getEmail();
 
-            String subject = "Order status changed";
+            if (order.getStatus().equals("created")){
+                String subject = "Order created";
 
-            Map<String, Object> variables = new HashMap<>();
-            variables.put("username", user.getUsername());
-            variables.put("status", order.getStatus());
-            emailService.sendEmail(userEmail, subject, variables, "email-template");
+                Map<String, Object> variables = new HashMap<>();
+                variables.put("username", user.getUsername());
+                variables.put("orderId", order.getId());
+                variables.put("items", order.getItems());
+                variables.put("finalPrice", order.getFinalPrice());
+                emailService.sendEmail(userEmail, subject, variables, "create-order/index");
+            } else {
+                String subject = "Order status changed";
+
+                Map<String, Object> variables = new HashMap<>();
+                variables.put("username", user.getUsername());
+                variables.put("orderId", order.getId());
+                variables.put("status", order.getStatus());
+                emailService.sendEmail(userEmail, subject, variables, "change-order-status/index");
+            }
+
+
         } else {
             System.out.println(userResponse);
         }
