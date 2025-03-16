@@ -45,7 +45,7 @@ public class KafkaConsumerService {
             Map<String, Object> variables = new HashMap<>();
             variables.put("username", user.getUsername());
             variables.put("status", order.getStatus());
-            emailService.sendEmail(userEmail, subject, variables);
+            emailService.sendEmail(userEmail, subject, variables, "email-template");
         } else {
             System.out.println(userResponse);
         }

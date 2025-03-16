@@ -24,13 +24,13 @@ public class EmailService {
     @Autowired
     private TemplateEngine templateEngine;
 
-    public void sendEmail(String to, String subject, Map<String, Object> variables) throws MessagingException {
+    public void sendEmail(String to, String subject, Map<String, Object> variables, String template) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
         Context context = new Context();
         context.setVariables(variables);
-        String htmlContent = templateEngine.process("email-template", context);
+        String htmlContent = templateEngine.process(template, context);
 
         helper.setFrom(mailFrom);  // Отправитель
         helper.setTo(to);  // Получатель
