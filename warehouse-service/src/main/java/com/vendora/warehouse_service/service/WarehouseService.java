@@ -10,6 +10,7 @@ import com.vendora.warehouse_service.repository.InventoryMovementRepo;
 import com.vendora.warehouse_service.repository.InventoryRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,17 +28,14 @@ public class WarehouseService {
     @Autowired
     private CatalogClient catalogClient;
 
-    private static <T> Iterable<T> reverseIterable(Iterable<T> iterable) {
-        List<T> list = new ArrayList<>();
-        iterable.forEach(list::add);
+    public Page<InventoryMovementEntity> getInventoryMovementList(Pageable pageable){
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "timestamp")
+        );
 
-        Collections.reverse(list);
-
-        return list;
-    }
-
-    public Iterable<InventoryMovementEntity> getInventoryMovementList(){
-        return reverseIterable(inventoryMovementRepo.findAll());
+        return inventoryMovementRepo.findAll(sortedPageable);
     }
 
     @Transactional

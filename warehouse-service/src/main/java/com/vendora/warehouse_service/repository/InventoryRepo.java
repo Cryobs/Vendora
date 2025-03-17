@@ -10,8 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface InventoryRepo extends JpaRepository<InventoryEntity, UUID> {
-    Page<InventoryEntity> findAll(Pageable pageable);
-
     Page<InventoryEntity> findByProductId(UUID productId, Pageable pageable);
 
     Optional<InventoryEntity> findByProductId(UUID productId);

@@ -32,14 +32,14 @@ public class WarehouseController {
 
     @GetMapping("/movement/list")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Iterable<InventoryMovementEntity>> getInventoryMovementList(){
-        return ResponseEntity.ok(warehouseService.getInventoryMovementList());
+    public ResponseEntity<Page<InventoryMovementEntity>> getInventoryMovementList(Pageable pageable){
+        return ResponseEntity.ok(warehouseService.getInventoryMovementList(pageable));
     }
 
     @GetMapping
     @PreAuthorize("hasRole('admin')")
-    public Page<InventoryEntity> getInventoryList(Pageable pageable){
-        return inventoryRepo.findAll(pageable);
+    public ResponseEntity<Page<InventoryEntity>> getInventoryList(Pageable pageable){
+        return ResponseEntity.ok(inventoryRepo.findAll(pageable));
     }
 
 
