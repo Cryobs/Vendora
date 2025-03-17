@@ -30,6 +30,11 @@ public class WarehouseController {
         return ResponseEntity.ok(warehouseService.addStockToProduct(productId, quantity));
     }
 
+    @GetMapping("/stock/check/{productId}")
+    public ResponseEntity<Boolean> checkStock(@PathVariable UUID productId, @RequestParam int quantity) throws ProductUndefinedException {
+        return ResponseEntity.ok(warehouseService.checkStock(productId, quantity));
+    }
+
     @GetMapping("/movement/list")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Page<InventoryMovementEntity>> getInventoryMovementList(Pageable pageable){

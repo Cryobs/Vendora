@@ -71,6 +71,13 @@ public class WarehouseService {
         return inventoryMovementRepo.save(inventoryMovement);
     }
 
+    public Boolean checkStock(UUID productId, int quantity) throws ProductUndefinedException {
+        InventoryEntity product = inventoryRepo.findByProductId(productId)
+                .orElseThrow(() -> new ProductUndefinedException("Undefined product id"));
+
+        return product.getQuantity() >= quantity;
+    }
+
     public InventoryEntity addStockToProduct(UUID productId, int additionalQuantity) throws ProductUnavailableException {
         Optional<InventoryEntity> optionalInventory = inventoryRepo.findByProductId(productId);
 
