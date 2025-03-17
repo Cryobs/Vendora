@@ -4,6 +4,8 @@ import com.vendora.catalog_service.DTO.ProductDTO;
 import com.vendora.catalog_service.entity.ProductEntity;
 import com.vendora.catalog_service.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -50,15 +52,14 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ProductEntity>> search(
+    public ResponseEntity<Page<ProductEntity>> search(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int psize,
+            Pageable pageable,
             @RequestParam(defaultValue = "purchasesCount_desc") String sort){
-        return ResponseEntity.ok(productService.search(q, page - 1, psize, sort, category, minPrice, maxPrice));
+        return ResponseEntity.ok(productService.search(q, pageable, sort, category, minPrice, maxPrice));
     }
 
 }

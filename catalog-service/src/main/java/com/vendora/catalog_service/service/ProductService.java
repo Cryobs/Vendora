@@ -6,9 +6,7 @@ import com.vendora.catalog_service.entity.ProductEntity;
 import com.vendora.catalog_service.repository.elasticsearch.ProductSearchRepo;
 import com.vendora.catalog_service.repository.postgres.ProductsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -69,10 +67,9 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("ProductEntity not found"));
     }
 
-    public List<ProductEntity> search(
+    public Page<ProductEntity> search(
             String keyword,
-            int page,
-            int psize,
+            Pageable pageable,
             String sort,
             String category,
             Double minPrice,
@@ -80,7 +77,6 @@ public class ProductService {
 
         Sort.Direction direction = sort.split("_")[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         String sortBy = sort.split("_")[0];
-        Pageable pageable = PageRequest.of(page, psize, Sort.by(direction, sortBy));
 
         NativeQueryBuilder nativeQueryBuilder = NativeQuery.builder();
 
@@ -128,13 +124,18 @@ public class ProductService {
         NativeQuery nativeQuery = nativeQueryBuilder.withPageable(pageable).build();
 
         SearchHits<ProductEntity> searchHits = elasticsearchOperations.search(nativeQuery, ProductEntity.class);
-        return searchHits.stream()
+
+        List<ProductEntity> products = searchHits.stream()
                 .map(SearchHit::getContent)
-                .collect(Collectors.toList());
+                .toList();
+
+        long totalHits = searchHits.getTotalHits();
+
+        return new PageImpl<>(products, pageable, totalHits);
     }
 
 
-    public Iterable<ProductEntity> productListAll(){
-        return productsRepo.findAll();
+    public Page<ProductEntity> productListAll(Pageable pageable){
+        return productsRepo.findAll(pageable);
     }
 }
