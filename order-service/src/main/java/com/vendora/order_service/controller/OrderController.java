@@ -6,6 +6,9 @@ import com.vendora.order_service.exception.OrderUndefinedException;
 import com.vendora.order_service.repository.OrderRepo;
 import com.vendora.order_service.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,20 +47,20 @@ public class OrderController {
 
     @GetMapping("/list/all")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Iterable<OrderEntity>> getListOfAllOrders() {
-        return ResponseEntity.ok(orderService.getListOfAllOrders());
+    public ResponseEntity<Page<OrderEntity>> getListOfAllOrders(Pageable pageable) {
+        return ResponseEntity.ok(orderService.getListOfAllOrders(pageable));
     }
 
     @GetMapping("/list")
     @PreAuthorize("hasRole('user')")
-    public ResponseEntity<Iterable<OrderEntity>> getOrdersList(@AuthenticationPrincipal Jwt jwt) {
-        return ResponseEntity.ok(orderService.getOrdersList(jwt));
+    public ResponseEntity<Page<OrderEntity>> getOrdersList(@AuthenticationPrincipal Jwt jwt, Pageable pageable) {
+        return ResponseEntity.ok(orderService.getOrdersList(jwt, pageable));
     }
 
     @GetMapping("/list/{status}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Iterable<OrderEntity>> getListOrderByStatus(@PathVariable String status) throws OrderUndefinedException {
-        return ResponseEntity.ok(orderService.getListOrderByStatus(status));
+    public ResponseEntity<Page<OrderEntity>> getListOrderByStatus(@PathVariable String status, Pageable pageable) throws OrderUndefinedException {
+        return ResponseEntity.ok(orderService.getListOrderByStatus(status, pageable));
     }
 
     @PutMapping("/status/{orderId}")

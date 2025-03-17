@@ -12,9 +12,12 @@ import com.vendora.order_service.repository.OrderItemRepo;
 import com.vendora.order_service.repository.OrderRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PagedModel;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.beans.Transient;
 import java.math.BigDecimal;
@@ -53,12 +56,12 @@ public class OrderService {
                 .orElseThrow(() -> new OrderUndefinedException("Order with id " + orderId + " is undefined"));
     }
 
-    public Iterable<OrderEntity> getOrdersList(Jwt jwt){
-        return orderRepo.findAllByUserId(jwt.getClaim("sub"));
+    public Page<OrderEntity> getOrdersList(Jwt jwt, Pageable pageable){
+        return orderRepo.findAllByUserId(jwt.getClaim("sub"), pageable);
     }
 
-    public Iterable<OrderEntity> getListOfAllOrders() {
-        return orderRepo.findAll();
+    public Page<OrderEntity> getListOfAllOrders(Pageable pageable) {
+        return orderRepo.findAll(pageable);
     }
 
 
@@ -127,10 +130,10 @@ public class OrderService {
         return order;
     }
 
-    public List<OrderEntity> getListOrderByStatus(String status) throws OrderUndefinedException {
-        List<OrderEntity> orders = orderRepo.findAllByStatus(status);
+    public Page<OrderEntity> getListOrderByStatus(String status, Pageable pageable) throws OrderUndefinedException {
+        Page<OrderEntity> orders = orderRepo.findAllByStatus(status, pageable);
 
-        if (orders.isEmpty()) {
+        if (orders.getContent().isEmpty()) {
             throw new OrderUndefinedException("No orders with status " + status);
         }
         return orders;
