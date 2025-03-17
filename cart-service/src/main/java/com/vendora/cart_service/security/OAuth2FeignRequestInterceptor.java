@@ -16,7 +16,7 @@ public class OAuth2FeignRequestInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate template) {
         OAuth2AuthorizeRequest request = OAuth2AuthorizeRequest.withClientRegistrationId("keycloak")
-                .principal("order-service")
+                .principal("cart-service")
                 .build();
 
         String token = manager.authorize(request)

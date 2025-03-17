@@ -5,6 +5,7 @@ import com.vendora.cart_service.DTO.CartItemDTO;
 import com.vendora.cart_service.entity.Cart;
 import com.vendora.cart_service.entity.CartItem;
 import com.vendora.cart_service.service.CartService;
+import jakarta.servlet.UnavailableException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class CartController {
 
     @PostMapping
     @PreAuthorize("hasRole('user')")
-    public Cart addItem(@RequestBody CartItemDTO cartItemDTO, @AuthenticationPrincipal Jwt jwt){
+    public Cart addItem(@RequestBody CartItemDTO cartItemDTO, @AuthenticationPrincipal Jwt jwt) throws UnavailableException {
         return cartService.addItem(cartItemDTO, UUID.fromString(jwt.getSubject()));
     }
 
@@ -54,7 +55,7 @@ public class CartController {
 
     @PutMapping
     @PreAuthorize("hasRole('user')")
-    public Cart updateItem(@RequestBody CartItemDTO cartItemDTO, @AuthenticationPrincipal Jwt jwt){
+    public Cart updateItem(@RequestBody CartItemDTO cartItemDTO, @AuthenticationPrincipal Jwt jwt) throws UnavailableException {
         return cartService.updateItem(cartItemDTO, UUID.fromString(jwt.getSubject()));
     }
 

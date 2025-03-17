@@ -383,6 +383,7 @@
       ],
       "admin-cli": [],
       "warehouse-service-client": [],
+      "cart-service-client": [],
       "account": [
         {
           "id": "bd8e5826-6824-4ab3-a6c8-1a6ff51e495c",
@@ -527,6 +528,26 @@
   "webAuthnPolicyPasswordlessAcceptableAaguids": [],
   "webAuthnPolicyPasswordlessExtraOrigins": [],
   "users": [
+    {
+      "id": "7ce96541-8b34-4de6-8d14-bf495de6fc0f",
+      "username": "service-account-cart-service-client",
+      "emailVerified": false,
+      "createdTimestamp": 1742249614638,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "cart-service-client",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-vendora",
+        "user",
+        "admin",
+        "vendor",
+        "test"
+      ],
+      "notBefore": 0,
+      "groups": []
+    },
     {
       "id": "5ad202a4-d832-4778-a7c8-1f12a2b9ad93",
       "username": "service-account-catalog-service-client",
@@ -855,6 +876,64 @@
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": 0,
       "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "organization",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "id": "1f02ce8f-905f-4698-9eec-04071a9af393",
+      "clientId": "cart-service-client",
+      "name": "",
+      "description": "",
+      "rootUrl": "http://localhost:8080/cart",
+      "adminUrl": "http://localhost:8080/cart",
+      "baseUrl": "http://localhost:8080/cart",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "**********",
+      "redirectUris": [
+        "http://localhost:8080"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "true",
+        "client.secret.creation.time": "1742249614",
+        "backchannel.logout.session.required": "true",
+        "post.logout.redirect.uris": "http://localhost:8080/cart",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "service_account",
         "web-origins",
         "acr",
         "roles",

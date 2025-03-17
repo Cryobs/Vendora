@@ -32,10 +32,10 @@ public class EmailService {
         context.setVariables(variables);
         String htmlContent = templateEngine.process(template, context);
 
-        helper.setFrom(mailFrom);  // Отправитель
-        helper.setTo(to);  // Получатель
-        helper.setSubject(subject);  // Тема письма
-        helper.setText(htmlContent, true); // Тело письма
+        helper.setFrom(mailFrom);
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
 
         mailSender.send(message);
     }

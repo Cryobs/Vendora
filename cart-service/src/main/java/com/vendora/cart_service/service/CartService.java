@@ -3,13 +3,16 @@ package com.vendora.cart_service.service;
 import com.vendora.cart_service.DTO.CartItemDTO;
 import com.vendora.cart_service.entity.Cart;
 import com.vendora.cart_service.entity.CartItem;
+import com.vendora.cart_service.feign.WarehouseClient;
 import com.vendora.cart_service.repository.CartItemRepo;
 import com.vendora.cart_service.repository.CartRepo;
 import jakarta.persistence.Access;
+import jakarta.servlet.UnavailableException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -23,22 +26,33 @@ public class CartService {
     private CartRepo cartRepo;
     @Autowired
     private CartItemRepo cartItemRepo;
+    @Autowired
+    private WarehouseClient warehouseClient;
 
-    public Cart addItem(CartItemDTO cartItemDTO, UUID userId){
-        Cart cart = getCart(userId);
-        Optional<CartItem> optionalItem = cart.getItems().stream()
-                .filter(item -> item.getProductId().equals(cartItemDTO.getProductId()))
-                .findFirst();
+    public Cart addItem(CartItemDTO cartItemDTO, UUID userId) throws UnavailableException {
+        if (Boolean.TRUE.equals(warehouseClient.checkStock(cartItemDTO.getProductId(), cartItemDTO.getQuantity()).getBody())){
+            Cart cart = getCart(userId);
+            Optional<CartItem> optionalItem = cart.getItems().stream()
+                    .filter(item -> item.getProductId().equals(cartItemDTO.getProductId()))
+                    .findFirst();
+            if (optionalItem.isPresent()) {
+                CartItem existingItem = optionalItem.get();
+                //check if after add quantity product available
+                if (Boolean.TRUE.equals(warehouseClient.checkStock(cartItemDTO.getProductId(),
+                        existingItem.getQuantity() + cartItemDTO.getQuantity()).getBody())){
+                    existingItem.setQuantity(existingItem.getQuantity() + cartItemDTO.getQuantity());
+                } else {
+                    throw new UnavailableException("Product unavailable");
+                }
 
-        if (optionalItem.isPresent()) {
-            CartItem existingItem = optionalItem.get();
-            existingItem.setQuantity(existingItem.getQuantity() + cartItemDTO.getQuantity());
+            } else {
+                CartItem newItem = new CartItem(cart, cartItemDTO.getProductId(), cartItemDTO.getQuantity());
+                cart.addItem(cartItemRepo.save(newItem));
+            }
+            return cartRepo.save(cart);
         } else {
-            CartItem newItem = new CartItem(cart, cartItemDTO.getProductId(), cartItemDTO.getQuantity());
-            cart.addItem(cartItemRepo.save(newItem));
+            throw new UnavailableException("Product unavailable");
         }
-
-        return cartRepo.save(cart);
     }
 
     public Cart getCart(UUID userId){
@@ -64,7 +78,7 @@ public class CartService {
     }
 
 
-    public Cart updateItem(CartItemDTO cartItemDTO, UUID userId) {
+    public Cart updateItem(CartItemDTO cartItemDTO, UUID userId) throws UnavailableException {
         Cart cart = getCart(userId);
         Optional<CartItem> optionalItem = cart.getItems().stream()
                 .filter(item -> item.getProductId().equals(cartItemDTO.getProductId()))
