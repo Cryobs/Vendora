@@ -6,6 +6,8 @@ import com.vendora.price_service.exception.NoDiscountException;
 import com.vendora.price_service.feign.CatalogClient;
 import com.vendora.price_service.repository.DiscountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -56,5 +58,9 @@ public class DiscountService {
             discount_value = BigDecimal.ZERO;
         }
         return discount_value;
+    }
+
+    public Page<DiscountEntity> getDiscountList(Pageable pageable){
+        return discountRepo.findAll(pageable);
     }
 }

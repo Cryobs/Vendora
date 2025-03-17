@@ -4,6 +4,8 @@ import com.vendora.price_service.DTO.DiscountDTO;
 import com.vendora.price_service.entity.DiscountEntity;
 import com.vendora.price_service.service.DiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,11 @@ public class DiscountController {
     @GetMapping("/{productId}")
     public ResponseEntity<DiscountEntity> haveDiscount(@PathVariable UUID productId){
         return ResponseEntity.ok(discountService.haveDiscount(productId));
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<DiscountEntity>> getDiscountList(Pageable pageable){
+        return ResponseEntity.ok(discountService.getDiscountList(pageable));
     }
 
     @GetMapping("/calculate/{productId}")

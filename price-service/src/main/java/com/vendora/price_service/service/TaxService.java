@@ -4,6 +4,8 @@ import com.vendora.price_service.DTO.TaxDTO;
 import com.vendora.price_service.entity.TaxEntity;
 import com.vendora.price_service.repository.TaxRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,5 +29,9 @@ public class TaxService {
         return price
                 .divide(BigDecimal.valueOf(100), 2)
                 .multiply(taxRepo.findByRegion(region).orElseThrow().getRate());
+    }
+
+    public Page<TaxEntity> getTaxList(Pageable pageable){
+        return taxRepo.findAll(pageable);
     }
 }

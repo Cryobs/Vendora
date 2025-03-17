@@ -28,21 +28,18 @@ public class PriceService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch product: " + e.getMessage(), e);
         }
-        System.out.println("Product getted");
         //calculate discount
         item.setTotalDiscount(discountService.calculateDiscount(item.getProductId(), item.getFinalPrice()));
         item.setFinalPrice(
                 item.getFinalPrice()
                         .subtract(item.getTotalDiscount())
         );
-        System.out.println("discount calculated");
         //calculate tax
         item.setTotalTax(taxService.calculateTax(item.getFinalPrice(), region));
         item.setFinalPrice(
                 item.getFinalPrice()
                         .add(item.getTotalTax())
         );
-        System.out.println("Tax calculated");
         return item;
     }
 

@@ -6,6 +6,8 @@ import com.vendora.price_service.repository.TaxRepo;
 import com.vendora.price_service.service.PriceService;
 import com.vendora.price_service.service.TaxService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +27,8 @@ public class TaxController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Iterable<TaxEntity>> getTaxList(){
-        return ResponseEntity.ok(taxRepo.findAll());
+    public ResponseEntity<Page<TaxEntity>> getTaxList(Pageable pageable){
+        return ResponseEntity.ok(taxService.getTaxList(pageable));
     }
 
 }
