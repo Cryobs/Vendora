@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedModel;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -76,9 +79,14 @@ public class OrderService {
         return order;
     }
 
-    @Transactional(rollbackOn = Exception.class)
-    public OrderEntity createOrder(CreateOrderDTO request, @AuthenticationPrincipal Jwt jwt){
+    @Async
+    public CompletableFuture<Boolean> reserveItem(UUID productId, int quantity){
+        boolean reserved = warehouseClient.reserveProduct(productId, quantity).getStatusCode().is2xxSuccessful();
+        return CompletableFuture.completedFuture(reserved);
+    }
 
+    @Transactional(rollbackOn = Exception.class)
+    public OrderEntity createOrder(CreateOrderDTO request, @AuthenticationPrincipal Jwt jwt) {
         String token = "Bearer " + jwt.getTokenValue();
         CartDTO cart = cartClient.getCart(token);
 
@@ -90,32 +98,36 @@ public class OrderService {
 
         order = orderRepo.save(order);
 
-        List<OrderItemEntity> items = new ArrayList<>();
-        for (int i = 0; i < cart.getItems().size(); i++) {
-            UUID productId = cart.getItems().get(i).getProductId();
-            int quantity = cart.getItems().get(i).getQuantity();
-            warehouseClient.reserveProduct(productId, quantity);
-            OrderItemEntity item = new OrderItemEntity(
-                    order,
-                    productId,
-                    quantity,
-                    BigDecimal.ZERO,
-                    BigDecimal.ZERO,
-                    BigDecimal.ZERO
-            );
-            items.add(item);
-        }
+        OrderEntity finalOrder = order;
+        List<CompletableFuture<OrderItemEntity>> futures = cart.getItems().stream()
+                .map(cartItem -> reserveItem(cartItem.getProductId(), cartItem.getQuantity())
+                        .thenApply(reserved -> new OrderItemEntity(
+                                finalOrder,
+                                cartItem.getProductId(),
+                                cartItem.getQuantity(),
+                                reserved ? BigDecimal.ONE : BigDecimal.ZERO,
+                                BigDecimal.ZERO,
+                                BigDecimal.ZERO
+                        ))
+                ).toList();
+
+        // Дожидаемся выполнения всех асинхронных задач
+        List<OrderItemEntity> items = futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+
+        // Сохраняем все элементы заказа после завершения резервирования
         orderItemRepo.saveAll(items);
         order.setItems(items);
         order = orderRepo.save(order);
-        // get order with prices
-        OrderDTO updatedOrderDTO = priceClient.calculateOrder(orderMapper.toDTO(order));
 
+        // Получаем обновленные цены
+        OrderDTO updatedOrderDTO = priceClient.calculateOrder(orderMapper.toDTO(order));
         order.setFinalPrice(updatedOrderDTO.getFinalPrice());
         order.setTotalTax(updatedOrderDTO.getTotalTax());
         order.setTotalDiscount(updatedOrderDTO.getTotalDiscount());
 
-        // Update items prices
+        // Обновляем цены у товаров
         for (int i = 0; i < order.getItems().size(); i++) {
             order.getItems().get(i).setFinalPrice(updatedOrderDTO.getItems().get(i).getFinalPrice());
             order.getItems().get(i).setTotalDiscount(updatedOrderDTO.getItems().get(i).getTotalDiscount());
@@ -123,8 +135,8 @@ public class OrderService {
         }
 
         cartClient.deleteCart(token);
-
         order = orderRepo.save(order);
+
         kafkaProducerService.sendOrder(order);
 
         return order;
