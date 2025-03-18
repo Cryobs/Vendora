@@ -112,6 +112,7 @@ public class OrderService {
                 ).toList();
 
         // Дожидаемся выполнения всех асинхронных задач
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         List<OrderItemEntity> items = futures.stream()
                 .map(CompletableFuture::join)
                 .collect(Collectors.toList());
