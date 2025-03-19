@@ -79,7 +79,7 @@ public class OrderService {
         return order;
     }
 
-    @Async
+    @Async("customExecutor")
     public CompletableFuture<Boolean> reserveItem(UUID productId, int quantity){
         boolean reserved = warehouseClient.reserveProduct(productId, quantity).getStatusCode().is2xxSuccessful();
         return CompletableFuture.completedFuture(reserved);
