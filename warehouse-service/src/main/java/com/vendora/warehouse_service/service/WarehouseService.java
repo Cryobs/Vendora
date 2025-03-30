@@ -9,16 +9,31 @@ import com.vendora.warehouse_service.feign.CatalogClient;
 import com.vendora.warehouse_service.repository.InventoryMovementRepo;
 import com.vendora.warehouse_service.repository.InventoryRepo;
 import jakarta.transaction.Transactional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
 
 @Service
 public class WarehouseService {
 
+    private static final Logger log = LogManager.getLogger(WarehouseService.class);
     @Autowired
     private InventoryRepo inventoryRepo;
 
@@ -78,12 +93,48 @@ public class WarehouseService {
         return product.getQuantity() >= quantity;
     }
 
+    @Async("updateStockImportExecutor")
+    public void updateStockImport(MultipartFile file){
+        try (InputStream inputStream = file.getInputStream()) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            List<String[]> batch = new ArrayList<>();
+            String line;
+            int lineCount = 0;
+
+            while ((line = reader.readLine()) != null){
+                String[] columns = line.split(",");
+                batch.add(columns);
+                lineCount++;
+
+                if (lineCount == 100){
+                    processBatchStockImport(batch);
+                    batch.clear();
+                    lineCount = 0;
+                }
+            }
+
+            if (!batch.isEmpty()){
+                processBatchStockImport(batch);
+            }
+
+        } catch (Exception e){
+            log.error("Error processing file: {}", e.getMessage());
+        }
+    }
+
+    @Async("processBatchStockImportExecutor")
+    private void processBatchStockImport (List<String[]> batch){
+        for (String[] row : batch){
+            System.out.println("Processing row: " + String.join(",", row));
+        }
+    }
+
     public InventoryEntity addStockToProduct(UUID productId, int additionalQuantity) throws ProductUnavailableException {
         Optional<InventoryEntity> optionalInventory = inventoryRepo.findByProductId(productId);
 
         if(optionalInventory.isPresent()){
             InventoryEntity inventory = optionalInventory.get();
-            //check if unavaible
+            //check if unavailable
             if(inventory.getQuantity() + additionalQuantity >= 0 ) {
                 inventory.setQuantity(inventory.getQuantity() + additionalQuantity);
                 inventory.setLastUpdated(LocalDateTime.now());

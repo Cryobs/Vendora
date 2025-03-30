@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -28,6 +29,13 @@ public class WarehouseController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<InventoryEntity> updateStock(@PathVariable UUID productId, @RequestParam int quantity) throws ProductUnavailableException {
         return ResponseEntity.ok(warehouseService.addStockToProduct(productId, quantity));
+    }
+
+    @PutMapping("/stock/import")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<String> updateStockImport(@RequestParam("file") MultipartFile file) {
+        warehouseService.updateStockImport(file);
+        return ResponseEntity.ok("File uploaded successfully, processing started.");
     }
 
     @GetMapping("/stock/check/{productId}")
