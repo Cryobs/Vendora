@@ -17,7 +17,7 @@ public class AsyncConfig {
         executor.setCorePoolSize(10); // Number of persistent threads
         executor.setMaxPoolSize(50);  // Max number of threads
         executor.setQueueCapacity(100); // Task queue (if no free)
-        executor.setThreadNamePrefix("AsyncExecutor-");
+        executor.setThreadNamePrefix("updateStockImportExecutor-");
         executor.initialize();
         return executor;
     }
@@ -28,7 +28,7 @@ public class AsyncConfig {
         executor.setCorePoolSize(10); // Number of persistent threads
         executor.setMaxPoolSize(50);  // Max number of threads
         executor.setQueueCapacity(100); // Task queue (if no free)
-        executor.setThreadNamePrefix("AsyncExecutor-");
+        executor.setThreadNamePrefix("processBatchStockImportExecutor-");
         executor.initialize();
         return executor;
     }

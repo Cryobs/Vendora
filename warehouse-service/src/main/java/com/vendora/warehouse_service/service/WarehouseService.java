@@ -8,11 +8,14 @@ import com.vendora.warehouse_service.exception.ProductUndefinedException;
 import com.vendora.warehouse_service.feign.CatalogClient;
 import com.vendora.warehouse_service.repository.InventoryMovementRepo;
 import com.vendora.warehouse_service.repository.InventoryRepo;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
@@ -42,6 +45,12 @@ public class WarehouseService {
 
     @Autowired
     private CatalogClient catalogClient;
+
+
+    @Autowired
+    private EntityManager entityManager;
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public Page<InventoryMovementEntity> getInventoryMovementList(Pageable pageable){
         Pageable sortedPageable = PageRequest.of(
@@ -122,10 +131,25 @@ public class WarehouseService {
         }
     }
 
+    @Transactional
     @Async("processBatchStockImportExecutor")
     private void processBatchStockImport (List<String[]> batch){
-        for (String[] row : batch){
-            System.out.println("Processing row: " + String.join(",", row));
+        String sql = "UPDATE inventory SET quantity = quantity + :quantity WHERE product_id = :product_id;";
+        List<Map<String, Object>> batchArgs = new ArrayList<>();
+
+        for (String[] row : batch) {
+            log.info("Updating stock for product_id: {} with quantity: {}", row[0], row[1]);
+            Map<String, Object> params = new HashMap<>();
+            params.put("product_id", UUID.fromString(row[0])); // UUID as string
+            params.put("quantity", Integer.parseInt(row[1])); // Stock to add
+
+            batchArgs.add(params);
+        }
+
+        try {
+            namedParameterJdbcTemplate.batchUpdate(sql, batchArgs.toArray(new Map[0]));
+        } catch (Exception e) {
+            log.error("Error processing batch: {}", e.getMessage());
         }
     }
 
