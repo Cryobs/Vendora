@@ -14,25 +14,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-
-import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
+import java.util.function.Predicate;
 
 @Service
 public class WarehouseService {
@@ -49,7 +43,7 @@ public class WarehouseService {
 
 
     @Autowired
-    private EntityManager entityManager;
+    private KafkaProducerService kafkaProducerService;
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -104,8 +98,8 @@ public class WarehouseService {
     }
 
     @Async("updateStockImportExecutor")
-    public void updateStockImport(MultipartFile file){
-        List<CompletableFuture<Boolean>> futures = new ArrayList<>();
+    public void updateStockImport(MultipartFile file, Jwt jwt){
+        List<CompletableFuture<String>> futures = new ArrayList<>();
 
         try (InputStream inputStream = file.getInputStream()) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -129,17 +123,21 @@ public class WarehouseService {
                 futures.add(processBatchStockImport(batch));
             }
 
-            // Дожидаемся завершения всех потоков
-            List<Boolean> results = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+            List<String> results = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                     .thenApply(v -> futures.stream().map(CompletableFuture::join).toList())
                     .join();
 
-            // Подсчет успешных и неудачных батчей
-            long successCount = results.stream().filter(Boolean::booleanValue).count();
-            long failCount = results.size() - successCount;
+            long successCount =  results.stream().filter(String::isBlank).count();
+            List<String> failCount = results.stream()
+                    .filter(Predicate.not(String::isBlank))
+                    .toList();
 
             log.info("Import Completed: Success batch: {}, Errors: {}", successCount, failCount);
-
+            if (failCount.isEmpty()){
+                kafkaProducerService.sendImport(jwt, "Success");
+            } else {
+                kafkaProducerService.sendImport(jwt, failCount.toString());
+            }
 
         } catch (Exception e){
             log.error("Error processing file: {}", e.getMessage());
@@ -148,9 +146,10 @@ public class WarehouseService {
 
     @Transactional
     @Async("processBatchStockImportExecutor")
-    private CompletableFuture<Boolean> processBatchStockImport(List<String[]> batch) {
+    private CompletableFuture<String> processBatchStockImport(List<String[]> batch) {
         String sql = "UPDATE inventory SET quantity = quantity + :quantity WHERE product_id = :product_id;";
         List<Map<String, Object>> batchArgs = new ArrayList<>();
+        String errors = "";
 
         for (String[] row : batch) {
             log.info("Updating stock for product_id: {} with quantity: {}", row[0], row[1]);
@@ -160,17 +159,17 @@ public class WarehouseService {
                 params.put("quantity", Integer.parseInt(row[1])); // Количество
             } catch (Exception e) {
                 log.error("Invalid data format: {}. Skipping this row.", Arrays.toString(row));
-                return CompletableFuture.completedFuture(false);
+                errors += ((errors.isEmpty()) ? "" : ";") + Arrays.toString(row);
             }
             batchArgs.add(params);
         }
 
         try {
             namedParameterJdbcTemplate.batchUpdate(sql, batchArgs.toArray(new Map[0]));
-            return CompletableFuture.completedFuture(true);
+            return CompletableFuture.completedFuture(errors);
         } catch (Exception e) {
             log.error("Error processing batch: {}", e.getMessage());
-            return CompletableFuture.completedFuture(false);
+            return CompletableFuture.completedFuture(errors);
         }
     }
 

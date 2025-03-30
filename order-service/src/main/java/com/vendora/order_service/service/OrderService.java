@@ -111,24 +111,20 @@ public class OrderService {
                         ))
                 ).toList();
 
-        // Дожидаемся выполнения всех асинхронных задач
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         List<OrderItemEntity> items = futures.stream()
                 .map(CompletableFuture::join)
                 .collect(Collectors.toList());
 
-        // Сохраняем все элементы заказа после завершения резервирования
         orderItemRepo.saveAll(items);
         order.setItems(items);
         order = orderRepo.save(order);
 
-        // Получаем обновленные цены
         OrderDTO updatedOrderDTO = priceClient.calculateOrder(orderMapper.toDTO(order));
         order.setFinalPrice(updatedOrderDTO.getFinalPrice());
         order.setTotalTax(updatedOrderDTO.getTotalTax());
         order.setTotalDiscount(updatedOrderDTO.getTotalDiscount());
 
-        // Обновляем цены у товаров
         for (int i = 0; i < order.getItems().size(); i++) {
             order.getItems().get(i).setFinalPrice(updatedOrderDTO.getItems().get(i).getFinalPrice());
             order.getItems().get(i).setTotalDiscount(updatedOrderDTO.getItems().get(i).getTotalDiscount());

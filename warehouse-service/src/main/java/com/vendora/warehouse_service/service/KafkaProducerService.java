@@ -1,7 +1,7 @@
-package com.vendora.order_service.service;
+package com.vendora.warehouse_service.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vendora.order_service.entity.OrderEntity;
+import com.vendora.warehouse_service.DTO.SendImportDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -38,11 +38,11 @@ public class KafkaProducerService {
         System.out.println("Unable to send message=[" + message + "] due to : " + ex.getMessage());
     }
 
-    public void sendOrder(OrderEntity order) {
+    public void sendImport(Jwt jwt, String status) {
         try {
-            String orderJson = objectMapper.writeValueAsString(order);
+            String importJson = objectMapper.writeValueAsString(new SendImportDTO(jwt.getSubject(), status));
 
-            this.kafkaTemplate.send("order-notifications", orderJson);
+            this.kafkaTemplate.send("import-notifications", importJson);
         } catch (Exception e) {
             e.printStackTrace();
         }
