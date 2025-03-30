@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
 
@@ -104,6 +105,8 @@ public class WarehouseService {
 
     @Async("updateStockImportExecutor")
     public void updateStockImport(MultipartFile file){
+        List<CompletableFuture<Boolean>> futures = new ArrayList<>();
+
         try (InputStream inputStream = file.getInputStream()) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             List<String[]> batch = new ArrayList<>();
@@ -116,15 +119,27 @@ public class WarehouseService {
                 lineCount++;
 
                 if (lineCount == 100){
-                    processBatchStockImport(batch);
+                    futures.add(processBatchStockImport(batch));
                     batch.clear();
                     lineCount = 0;
                 }
             }
 
             if (!batch.isEmpty()){
-                processBatchStockImport(batch);
+                futures.add(processBatchStockImport(batch));
             }
+
+            // Дожидаемся завершения всех потоков
+            List<Boolean> results = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                    .thenApply(v -> futures.stream().map(CompletableFuture::join).toList())
+                    .join();
+
+            // Подсчет успешных и неудачных батчей
+            long successCount = results.stream().filter(Boolean::booleanValue).count();
+            long failCount = results.size() - successCount;
+
+            log.info("Import Completed: Success batch: {}, Errors: {}", successCount, failCount);
+
 
         } catch (Exception e){
             log.error("Error processing file: {}", e.getMessage());
@@ -133,23 +148,29 @@ public class WarehouseService {
 
     @Transactional
     @Async("processBatchStockImportExecutor")
-    private void processBatchStockImport (List<String[]> batch){
+    private CompletableFuture<Boolean> processBatchStockImport(List<String[]> batch) {
         String sql = "UPDATE inventory SET quantity = quantity + :quantity WHERE product_id = :product_id;";
         List<Map<String, Object>> batchArgs = new ArrayList<>();
 
         for (String[] row : batch) {
             log.info("Updating stock for product_id: {} with quantity: {}", row[0], row[1]);
             Map<String, Object> params = new HashMap<>();
-            params.put("product_id", UUID.fromString(row[0])); // UUID as string
-            params.put("quantity", Integer.parseInt(row[1])); // Stock to add
-
+            try {
+                params.put("product_id", UUID.fromString(row[0])); // UUID как строка
+                params.put("quantity", Integer.parseInt(row[1])); // Количество
+            } catch (Exception e) {
+                log.error("Invalid data format: {}. Skipping this row.", Arrays.toString(row));
+                return CompletableFuture.completedFuture(false);
+            }
             batchArgs.add(params);
         }
 
         try {
             namedParameterJdbcTemplate.batchUpdate(sql, batchArgs.toArray(new Map[0]));
+            return CompletableFuture.completedFuture(true);
         } catch (Exception e) {
             log.error("Error processing batch: {}", e.getMessage());
+            return CompletableFuture.completedFuture(false);
         }
     }
 
