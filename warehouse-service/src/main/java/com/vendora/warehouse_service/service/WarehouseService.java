@@ -155,8 +155,8 @@ public class WarehouseService {
             log.info("Updating stock for product_id: {} with quantity: {}", row[0], row[1]);
             Map<String, Object> params = new HashMap<>();
             try {
-                params.put("product_id", UUID.fromString(row[0])); // UUID как строка
-                params.put("quantity", Integer.parseInt(row[1])); // Количество
+                params.put("product_id", UUID.fromString(row[0]));
+                params.put("quantity", Integer.parseInt(row[1]));
             } catch (Exception e) {
                 log.error("Invalid data format: {}. Skipping this row.", Arrays.toString(row));
                 errors += ((errors.isEmpty()) ? "" : ";") + Arrays.toString(row);

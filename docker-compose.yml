@@ -73,7 +73,7 @@ services:
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
-      KAFKA_CREATE_TOPIC: "order-notifications:1:1,import-notifications:1:1"
+      KAFKA_CREATE_TOPIC: "order-notifications:1:3,import-notifications:1:3"
     ports:
       - "9092:9092"
     networks:
