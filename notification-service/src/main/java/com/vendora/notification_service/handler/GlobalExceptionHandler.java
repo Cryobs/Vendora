@@ -1,4 +1,4 @@
-package com.vendora.order_service.handler;
+package com.vendora.notification_service.handler;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

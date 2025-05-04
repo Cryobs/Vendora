@@ -13,17 +13,13 @@ import com.vendora.order_service.repository.OrderRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.web.PagedModel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 
-import java.beans.Transient;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +27,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
+
+    private static final String ORDER_UNDEFINED_TEMPLATE = "Order with id %s is undefined";
+    private static final String ORDER_STATUS_UNDEFINED_TEMPLATE = "No orders with status %s";
 
     @Autowired
     private PriceClient priceClient;
@@ -56,7 +55,7 @@ public class OrderService {
 
     public OrderEntity getOrder(UUID orderId, Jwt jwt) throws OrderUndefinedException {
         return orderRepo.findByIdAndUserId(orderId, jwt.getClaim("sub"))
-                .orElseThrow(() -> new OrderUndefinedException("Order with id " + orderId + " is undefined"));
+                .orElseThrow(() -> new OrderUndefinedException(ORDER_UNDEFINED_TEMPLATE.formatted(orderId)));
     }
 
     public Page<OrderEntity> getOrdersList(Jwt jwt, Pageable pageable){
@@ -71,7 +70,7 @@ public class OrderService {
 
     public OrderEntity putOrderStatus(UUID orderId , String status) throws OrderUndefinedException {
         OrderEntity order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new OrderUndefinedException("Order with id " + orderId + " is undefined"));
+                .orElseThrow(() -> new OrderUndefinedException(ORDER_UNDEFINED_TEMPLATE.formatted(orderId)));
         order.setStatus(status);
 
         order = orderRepo.save(order);
@@ -143,7 +142,7 @@ public class OrderService {
         Page<OrderEntity> orders = orderRepo.findAllByStatus(status, pageable);
 
         if (orders.getContent().isEmpty()) {
-            throw new OrderUndefinedException("No orders with status " + status);
+            throw new OrderUndefinedException(ORDER_STATUS_UNDEFINED_TEMPLATE.formatted(status));
         }
         return orders;
     }
