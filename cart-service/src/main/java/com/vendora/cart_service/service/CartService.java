@@ -70,6 +70,7 @@ public class CartService {
         optionalItem.ifPresent(item -> {
             cart.removeItem(item);
             cartRepo.save(cart);
+            cartItemRepo.delete(item);
         });
     }
 
