@@ -4,6 +4,8 @@ import com.vendora.catalog_service.entity.ProductEntity;
 import com.vendora.catalog_service.repository.elasticsearch.ProductSearchRepo;
 import com.vendora.catalog_service.repository.postgres.ProductsRepo;
 import jakarta.annotation.PostConstruct;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,11 +18,16 @@ import java.util.stream.StreamSupport;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Component
 public class ElasticSync {
+    private static final String DATA_INCONSISTENCY_TEMPLATE = "Data inconsistency detected! Resyncing...";
+    private static final String ADDED_PRODUCT_TEMPLATE = "Added {} missing products.";
+    private static final String NO_MISSING_PRODUCTS_TEMPLATE = "No missing products found.";
+    private static final String SYNC_ERROR_TEMPLATE = "Error during ElasticSearch sync: {}";
+
+    private static final Logger log = LogManager.getLogger(ElasticSync.class);
+
     @Autowired
     private ProductsRepo productsRepo;
 
@@ -41,32 +48,31 @@ public class ElasticSync {
                 long esCount = productSearchRepo.count();
 
                 if (dbCount != esCount) {
-                    System.out.println("Data inconsistency detected! Resyncing...");
+                    log.info(DATA_INCONSISTENCY_TEMPLATE);
 
-                    // Получаем все продукты из БД
+                    // We get all products from the database
                     List<ProductEntity> allProducts = productsRepo.findAll();
 
-                    // Получаем ID всех продуктов в Elasticsearch
+                    // Get IDs of all products in Elasticsearch
                     Iterable<ProductEntity> esProductsIterable = productSearchRepo.findAll();
                     Set<UUID> esProductIds = StreamSupport.stream(esProductsIterable.spliterator(), false)
                             .map(ProductEntity::getId)
                             .collect(Collectors.toSet());
 
-                    // Фильтруем продукты, которых нет в Elasticsearch
+                    // Filtering products that are not in Elasticsearch
                     List<ProductEntity> missingProducts = allProducts.stream()
                             .filter(p -> !esProductIds.contains(p.getId()))
                             .toList();
 
                     if (!missingProducts.isEmpty()) {
                         productSearchRepo.saveAll(missingProducts);
-                        System.out.println("Added " + missingProducts.size() + " missing products.");
+                        log.info(ADDED_PRODUCT_TEMPLATE, missingProducts.size());
                     } else {
-                        System.out.println("No missing products found.");
+                        log.info(NO_MISSING_PRODUCTS_TEMPLATE);
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Error during ElasticSearch sync: " + e.getMessage());
-                e.printStackTrace();
+                log.error(SYNC_ERROR_TEMPLATE,  e.getMessage());
             }
         });
     }

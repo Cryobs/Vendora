@@ -16,11 +16,15 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
+
+    private static final String PRODUCT_NOT_FOUND_TEMPLATE = "ProductEntity not found";
+    private static final String PRODUCT_DELETED_TEMPLATE = "ProductEntity deleted";
+    private static final String ALL_PRODUCTS_DELETED_TEMPLATE = "All products deleted";
 
     @Autowired
     private ProductsRepo productsRepo;
@@ -38,7 +42,7 @@ public class ProductService {
 
     public ProductEntity addPurchasesCount(UUID productId){
         ProductEntity productEntity = productsRepo.findById(productId)
-                .orElseThrow(() -> new RuntimeException("ProductEntity not found"));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND_TEMPLATE));
         productEntity.addPurchasesCount();
         productSearchRepo.save(productEntity);
         return productsRepo.save(productEntity);
@@ -46,11 +50,11 @@ public class ProductService {
 
     public String deleteProduct(UUID productId, Jwt jwt) throws IllegalAccessException {
         ProductEntity productEntity = productsRepo.findById(productId)
-                .orElseThrow(() -> new RuntimeException("ProductEntity not found"));
-        if (productEntity.getUserId().equals(jwt.getSubject())){
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND_TEMPLATE));
+        if (productEntity.getUserId().toString().equals(jwt.getSubject())){
             productsRepo.delete(productEntity);
             productSearchRepo.delete(productEntity);
-            return "ProductEntity deleted";
+            return PRODUCT_DELETED_TEMPLATE;
         } else {
             throw new IllegalAccessException("Unauthorized");
         }
@@ -59,12 +63,12 @@ public class ProductService {
     public String deleteAllProducts(){
         productsRepo.deleteAll();
         productSearchRepo.deleteAll();
-        return "All products deleted";
+        return ALL_PRODUCTS_DELETED_TEMPLATE;
     }
 
     public ProductEntity getProduct(UUID productId){
         return productsRepo.findById(productId)
-                .orElseThrow(() -> new RuntimeException("ProductEntity not found"));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND_TEMPLATE));
     }
 
     public Page<ProductEntity> search(
