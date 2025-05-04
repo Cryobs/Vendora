@@ -2,6 +2,8 @@ package com.vendora.warehouse_service.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vendora.warehouse_service.DTO.SendImportDTO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -13,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class KafkaProducerService {
 
+    private static final Logger log = LogManager.getLogger(KafkaProducerService.class);
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
@@ -44,7 +47,7 @@ public class KafkaProducerService {
 
             this.kafkaTemplate.send("import-notifications", importJson);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Kafka send error: {}", e.getMessage(), e);
         }
     }
 }
