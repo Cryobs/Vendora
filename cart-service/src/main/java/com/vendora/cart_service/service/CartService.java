@@ -6,21 +6,17 @@ import com.vendora.cart_service.entity.CartItem;
 import com.vendora.cart_service.feign.WarehouseClient;
 import com.vendora.cart_service.repository.CartItemRepo;
 import com.vendora.cart_service.repository.CartRepo;
-import jakarta.persistence.Access;
 import jakarta.servlet.UnavailableException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class CartService {
+
+    private static final String PRODUCT_UNAVAILABLE_TEMPLATE = "Product unavailable";
 
     @Autowired
     private CartRepo cartRepo;
@@ -42,7 +38,7 @@ public class CartService {
                         existingItem.getQuantity() + cartItemDTO.getQuantity()).getBody())){
                     existingItem.setQuantity(existingItem.getQuantity() + cartItemDTO.getQuantity());
                 } else {
-                    throw new UnavailableException("Product unavailable");
+                    throw new UnavailableException(PRODUCT_UNAVAILABLE_TEMPLATE);
                 }
 
             } else {
@@ -51,7 +47,7 @@ public class CartService {
             }
             return cartRepo.save(cart);
         } else {
-            throw new UnavailableException("Product unavailable");
+            throw new UnavailableException(PRODUCT_UNAVAILABLE_TEMPLATE);
         }
     }
 

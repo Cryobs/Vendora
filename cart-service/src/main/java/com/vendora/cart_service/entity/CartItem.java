@@ -2,9 +2,14 @@ package com.vendora.cart_service.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
+@Data
+@RequiredArgsConstructor
 @Entity
 public class CartItem {
     @Id
@@ -16,51 +21,18 @@ public class CartItem {
     @JsonBackReference
     private Cart cart;
 
+    @NonNull
     @Column(nullable = false)
     private UUID productId;
 
+    @NonNull
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
-    public CartItem() {
-    }
-
-    public CartItem(Cart cart, UUID productId, int quantity) {
+    public CartItem(Cart cart, @NonNull UUID productId, @NonNull Integer quantity) {
         this.cart = cart;
         this.productId = productId;
         this.quantity = quantity;
     }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public Cart getCart() {
-        return cart;
-    }
-
-    public void setCart(Cart cart) {
-        this.cart = cart;
-    }
-
-    public UUID getProductId() {
-        return productId;
-    }
-
-    public void setProductId(UUID productId) {
-        this.productId = productId;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
 }
+
