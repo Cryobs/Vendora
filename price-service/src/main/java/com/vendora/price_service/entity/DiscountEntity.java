@@ -1,14 +1,17 @@
 package com.vendora.price_service.entity;
 
 
-import com.vendora.price_service.entity.ProductEntity;
 import com.vendora.price_service.DTO.DiscountDTO;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "discounts")
 public class DiscountEntity {
@@ -17,7 +20,7 @@ public class DiscountEntity {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "productId", nullable = true)
+    @JoinColumn(name = "productId")
     private ProductEntity product;
     @Column(nullable = false)
     private String discountType;
@@ -29,11 +32,6 @@ public class DiscountEntity {
     private LocalDateTime  endDate;
     private Boolean isActive;
 
-
-    public DiscountEntity() {
-    }
-
-
     public DiscountEntity(DiscountDTO discountDTO, ProductEntity product) {
         this.product = product;
         this.discountType = discountDTO.getDiscountType();
@@ -42,53 +40,6 @@ public class DiscountEntity {
         this.startDate = discountDTO.getStartDate();
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public ProductEntity getProduct() {
-        return product;
-    }
-
-    public void setProduct(ProductEntity product) {
-        this.product = product;
-    }
-
-    public String getDiscountType() {
-        return discountType;
-    }
-
-    public void setDiscountType(String discountType) {
-        this.discountType = discountType;
-    }
-
-    public BigDecimal getDiscountValue() {
-        return discountValue;
-    }
-
-    public void setDiscountValue(BigDecimal discountValue) {
-        this.discountValue = discountValue;
-    }
-
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
-    }
 
     public Boolean isActive() {
         return isActive;

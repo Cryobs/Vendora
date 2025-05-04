@@ -11,11 +11,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
 public class DiscountService {
+
+    private static final String NO_DISCOUNT_TEMPLATE = "Product with id %s don't have discount";
     @Autowired
     private DiscountRepo discountRepo;
     @Autowired
@@ -39,7 +42,7 @@ public class DiscountService {
 
     public DiscountEntity haveDiscount(UUID product_id){
         return discountRepo.findByProductId(product_id)
-                .orElseThrow(() ->new NoDiscountException("Product with id " + product_id + " don't have discount"));
+                .orElseThrow(() ->new NoDiscountException(NO_DISCOUNT_TEMPLATE.formatted(product_id)));
     }
 
     public BigDecimal calculateDiscount(UUID productId, BigDecimal price){
@@ -49,7 +52,7 @@ public class DiscountService {
             discount = haveDiscount(productId);
             if (Objects.equals(discount.getDiscountType(), "Percent")) {
                 discount_value = price
-                        .divide(BigDecimal.valueOf(100), 2)
+                        .divide(BigDecimal.valueOf(100), RoundingMode.valueOf(2))
                         .multiply(discount.getDiscountValue());
             } else {
                 discount_value = discount.getDiscountValue();

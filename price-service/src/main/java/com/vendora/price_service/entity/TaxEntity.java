@@ -2,10 +2,14 @@ package com.vendora.price_service.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "taxes")
 public class TaxEntity {
@@ -25,42 +29,4 @@ public class TaxEntity {
         this.taxType = tax_type;
         this.rate = rate;
     }
-
-    public TaxEntity() {
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public String getTaxType() {
-        return taxType;
-    }
-
-    public void setTaxType(String taxType) {
-        this.taxType = taxType;
-    }
-
-    public BigDecimal getRate() {
-        return rate;
-    }
-
-    public void setRate(BigDecimal rate) {
-        this.rate = rate;
-    }
-
-
-
 }
